@@ -11,6 +11,7 @@ import jodd.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
@@ -39,7 +40,11 @@ public class WriteFtl implements TemplateDirectiveModel {
 				code = code.replaceAll("\n" + leftCode, "\n");
 			}
 			//LOG.debug(code);
-			FileUtil.writeString(out, code, "utf-8");
+			File outFile = new File(out);
+			if(!outFile.getParentFile().exists()){
+				FileUtil.mkdirs(outFile.getParentFile());
+			}
+			FileUtil.writeString(outFile, code, "utf-8");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

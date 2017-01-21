@@ -1,24 +1,16 @@
 <#assign data={} />
 <#assign jdkVersion='1.8' />
-<#function evl text>
-	<#assign props=data.props!{}/>
-	<#assign result=text/>
-	<#list props?keys as key>
-		<#assign result=result?replace('$'+'{'+key+'}', props[key]) />
-	</#list>
-	<#return result />
-</#function>
-${LoadYaml('data', './gradle.yml')}
+${LoadYaml('data', './gradle.yml', 'props')}
 <@WriteFtl out="./build.gradle">
 plugins {
 	<#list data.plugins as plugin>
-	id '${evl(plugin)}'
+	id '${plugin}'
 	</#list>
 }
 
-group = '${evl(data.group)}'
-version = '${evl(data.version)}'
-description = """${evl(data.description)}"""
+group = '${data.group}'
+version = '${data.version}'
+description = """${data.description}"""
 
 subprojects {
 	sourceCompatibility = ${jdkVersion}
@@ -76,22 +68,22 @@ subprojects {
 <#macro genSubProject>
 	<#list data.subProjects?keys as subProjectName>
 		<#assign subProject=data.subProjects[subProjectName] />
-		<@WriteFtl out="./${evl(subProjectName)}/build.gradle" left=2>
+		<@WriteFtl out="./${subProjectName}/build.gradle" left=2>
 		plugins {
 			<#list subProject.plugins as plugin>
-			id '${evl(plugin)}'
+			id '${plugin}'
 			</#list>
 		}
 
-		group = '${evl(data.group)}'
-		version = '${evl(subProject.version)}'
-		description = """${evl(subProject.description)}"""
-		archivesBaseName = '${evl(subProjectName)}'
-		<#if (subProject.applyFrom!'') != ''>apply from: '${evl(subProject.applyFrom)}'</#if>
+		group = '${data.group}'
+		version = '${subProject.version}'
+		description = """${subProject.description}"""
+		archivesBaseName = '${subProjectName}'
+		<#if (subProject.applyFrom)?? && subProject.applyFrom?trim != ''>apply from: '${subProject.applyFrom}'</#if>
 
 		dependencies {
 			<#list subProject.deps as dep>
-			${evl(dep)}
+			${dep}
 			</#list>
 		}
 
@@ -101,15 +93,15 @@ subprojects {
 
 		<#list (subProject.GradleJavaTask!{})?keys as taskName>
 		<#assign taskArgs=subProject.GradleJavaTask[taskName] />
-		task ${evl(taskName)}(type: JavaExec, dependsOn: []) {
-			workingDir = '${evl(taskArgs[1])}'
+		task ${taskName}(type: JavaExec, dependsOn: []) {
+			workingDir = '${taskArgs[1]}'
 			classpath = sourceSets.main.runtimeClasspath
-			main = '${evl(taskArgs[0])}'
-			args = [${evl((taskArgs[2])!'')}]
+			main = '${taskArgs[0]}'
+			args = [${(taskArgs[2])!''}]
 			systemProperties System.getProperties()
 		}
 		</#list>
-		${evl(subProject.ExtCodes!'')}
+		${subProject.ExtCodes!''}
 		</@WriteFtl>
 	</#list>
 </#macro>
