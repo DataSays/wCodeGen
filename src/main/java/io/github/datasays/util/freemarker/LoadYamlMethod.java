@@ -17,8 +17,8 @@ import java.util.Map;
  * Load yaml file into freemarker variable.
  * args: varName, filePath, prop Field Name
  */
-public class LoadYaml implements TemplateMethodModelEx {
-	private static final Logger LOG = LoggerFactory.getLogger(LoadYaml.class);
+public class LoadYamlMethod implements TemplateMethodModelEx {
+	private static final Logger LOG = LoggerFactory.getLogger(LoadYamlMethod.class);
 
 	@Override
 	public Object exec(List args) throws TemplateModelException {

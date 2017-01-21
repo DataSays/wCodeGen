@@ -6,45 +6,46 @@ import freemarker.template.TemplateDirectiveBody;
 import freemarker.template.TemplateDirectiveModel;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
-import jodd.io.FileUtil;
 import jodd.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 
 /**
  * Created by watano on 2017/1/21.
  */
-public class WriteFtl implements TemplateDirectiveModel {
-	private static final Logger LOG = LoggerFactory.getLogger(WriteFtl.class);
+public class LeftTabDirective implements TemplateDirectiveModel {
+	private static final Logger LOG = LoggerFactory.getLogger(LeftTabDirective.class);
 
 	@Override
 	public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 		try {
-			String out = params.get("out").toString();
+			//render body
+			StringWriter sw = new StringWriter();
+			body.render(sw);
+			String code = sw.toString();
+
 			int left = 0;
 			if (params.get("left") != null && params.get("left") instanceof SimpleNumber) {
 				left = ((SimpleNumber) params.get("left")).getAsNumber().intValue();
 			}
-			LOG.info(out);
-			StringWriter sw = new StringWriter();
-			body.render(sw);
-			String code = sw.toString();
-			if (left > 0) {
-				String leftCode = StringUtil.repeat("\t", left);
+			if (left < 0) {
+				String leftCode = StringUtil.repeat("\t", -1 * left);
 				code = code.replaceAll("^" + leftCode, "");
 				code = code.replaceAll("\n" + leftCode, "\n");
+			} else if (left > 0) {
+				String leftCode = StringUtil.repeat("\t", left);
+				code = leftCode + code;
+				code = code.replaceAll("\n", "\n"+leftCode);
 			}
-			//LOG.debug(code);
-			File outFile = new File(out);
-			if(!outFile.getParentFile().exists()){
-				FileUtil.mkdirs(outFile.getParentFile());
-			}
-			FileUtil.writeString(outFile, code, "utf-8");
+
+			//write body
+			Writer out = env.getOut();
+			out.write(code);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

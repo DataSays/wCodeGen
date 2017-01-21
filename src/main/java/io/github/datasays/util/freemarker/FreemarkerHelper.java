@@ -30,8 +30,9 @@ public class FreemarkerHelper {
 		cfg = new Configuration(Configuration.getVersion());
 		cfg.setSharedVariable("invokestatic", new InvokeStaticMethodModel());
 		cfg.setSharedVariable("value", new ValueMethodModel());
-		cfg.setSharedVariable("WriteFtl", new WriteFtl());
-		cfg.setSharedVariable("LoadYaml", new LoadYaml());
+		cfg.setSharedVariable("WriteFtl", new WriteFtlDirective());
+		cfg.setSharedVariable("LoadYaml", new LoadYamlMethod());
+		cfg.setSharedVariable("LeftTab", new LeftTabDirective());
 		cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS));
 	}
 
