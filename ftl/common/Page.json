@@ -1,0 +1,62 @@
+{
+  "Page": {
+    "site": {
+      "name": "惠农天下",
+      "title": "惠农天下",
+      "logo": "logo.png",
+      "domain": "nongex.com",
+      "description": "惠农天下",
+      "keywords": "惠农天下",
+      "theme": "nongex",
+      "copyright": "云南盛拓科威科技发展有限公司",
+      "customIndexView": "",
+      "company": "惠农天下",
+      "help": "/f/list-26.html",
+      "hmbaidu": "4b3cc7c2c16e3e02d75fdd8ab8004c46",
+      "wechat": "惠农天下",
+      "weibo": "nongex@惠农天下",
+      "qq": "3326392297",
+      "beian": "备案号：滇ICP备16001996号\u003ca href\u003d\"http://61.159.214.200:81/RecValidate/RecView.aspx?RecordID\u003d\" target\u003d\"_blank\"\u003e\u003cimg src\u003d\"/static/common/imgs/recValidate.jpg\" style\u003d\"width: 40px;height: 40px;\"\u003e\u003c/a\u003e\u003ca href\u003d\"http://www.yn.cyberpolice.cn/\" target\u003d\"_blank\"\u003e\u003cimg src\u003d\"/static/common/imgs/cyberpolice.jpg\" style\u003d\"width:40px;height: 40px;\"\u003e\u003c/a\u003e",
+      "slogan": "",
+      "cnzzWebId": "",
+      "remarks": "",
+      "createBy": {
+        "loginFlag": "1",
+        "roleList": [],
+        "delFlag": "0",
+        "isLikeQuery": true,
+        "id": "1",
+        "isNewRecord": false
+      },
+      "createDate": "2015-10-284 11:34:26:3426",
+      "updateBy": {
+        "loginFlag": "1",
+        "roleList": [],
+        "delFlag": "0",
+        "isLikeQuery": true,
+        "id": "1",
+        "isNewRecord": false
+      },
+      "updateDate": "2016-04-98 09:03:38:338",
+      "delFlag": "0",
+      "isLikeQuery": true,
+      "id": "3",
+      "isNewRecord": false
+    },
+    "profile": "ShopProfile",
+    "ctx": "",
+    "ctxStatic": "",
+    "mainMenuId": "",
+    "mainChildMenuId": "",
+    "preFooterId": "",
+    "footMenuId": "",
+    "surveyCategoryId": "",
+    "serviceAgreementId": "",
+    "partnerCategoryId": "",
+    "mainMenu": [],
+    "preFooterItems": [],
+    "extHeaderCodes": [],
+    "extFooterCodes": [],
+    "devMode": true
+  }
+}
