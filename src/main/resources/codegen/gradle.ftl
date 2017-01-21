@@ -33,38 +33,20 @@ idea{
 		testOutputDir = file("$buildDir/classes/test/")
 	}
 }
-
-task listJars {
-	doLast {
-		def sw = new StringWriter()
-		configurations.compile.each {
-			File file -> sw.write(file.toString() + '\n')
-		}
-		def allJarsFile = new File("./AllJars.txt")
-		allJarsFile.write(sw.toString())
-	}
-}
-
-task fatJar(type: Jar) {
-	baseName = project.name + '-all'
-	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-	with jar
-}
-
 </#macro>
 
 <#macro genCommon cfg>
-group = '${cfg.group}'
-version = '${cfg.version}'
-description = """${cfg.description}"""
-archivesBaseName = '${cfg.project}'
-<#if (cfg.applyFrom)?? && cfg.applyFrom?trim != ''>apply from: '${cfg.applyFrom}'</#if>
-
 plugins {
 	<#list cfg.plugins as plugin>
 	id '${plugin}'
 	</#list>
 }
+
+group = '${cfg.group}'
+version = '${cfg.version}'
+description = """${cfg.description}"""
+archivesBaseName = '${cfg.project}'
+<#if (cfg.applyFrom)?? && cfg.applyFrom?trim != ''>apply from: '${cfg.applyFrom}'</#if>
 
 <#if (cfg.deps)?? && cfg.deps?size gt 0>
 dependencies {
@@ -84,6 +66,19 @@ task ${taskName}(type: JavaExec, dependsOn: []) {
 	systemProperties System.getProperties()
 }
 </#list>
+<#if (cfg.fatJar)?? && cfg.fatJar != ''>
+task fatJar(type: Jar) {
+	manifest {
+		attributes 'Implementation-Title': '${cfg.description}',
+		'Implementation-Version': version,
+		'Main-Class': '${cfg.fatJar}'
+	}
+
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
+</#if>
 ${cfg.ExtCodes!''}
 </#macro>
 

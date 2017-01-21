@@ -6,7 +6,7 @@ props:
     okhttp: 3.5.0
     okio: 1.11.0
     springboot: 1.4.2.RELEASE
-    junitDep: "compile 'junit:junit:4.12'"
+    junitDep: "testCompile 'junit:junit:4.12'"
     #maven-publish: nebula.maven-publish' version '4.9.1
     maven-publish: maven-publish
     bintray: com.jfrog.bintray' version '1.7.3
@@ -14,8 +14,8 @@ props:
     plugin-boot: 1.4.2.RELEASE
 group: io.github.datasays
 project: wCodeGen
-version: 1.0
-plugins: [java,eclipse,idea,"com.github.ben-manes.versions' version '${ben-manes}"]
+version: "1.0"
+plugins: [java,eclipse,idea,maven,signing,"${maven-publish}","${bintray}","com.github.ben-manes.versions' version '${ben-manes}"]
 description: DataSays wCodeGen
 applyFrom: ./bintray.gradle
 deps:
@@ -25,3 +25,4 @@ deps:
   - compile 'org.freemarker:freemarker:2.3.23'
   - compile 'org.yaml:snakeyaml:1.17'
   - ${junitDep}
+fatJar: io.github.datasays.codeGen2.FtlCodeGen2

@@ -2,6 +2,10 @@ plugins {
 	id 'java'
 	id 'eclipse'
 	id 'idea'
+	id 'maven'
+	id 'signing'
+	id 'maven-publish'
+	id 'com.jfrog.bintray' version '1.7.3'
 	id 'com.github.ben-manes.versions' version '0.13.0'
 }
 
@@ -9,6 +13,28 @@ group = 'io.github.datasays'
 version = '1.0'
 description = """DataSays wCodeGen"""
 archivesBaseName = 'wCodeGen'
+apply from: './bintray.gradle'
+
+dependencies {
+	compile 'io.github.datasays:wUtil:1.1'
+	compile 'org.jodd:jodd-lagarto:3.7.1'
+	compile 'org.jodd:jodd-proxetta:3.7.1'
+	compile 'org.freemarker:freemarker:2.3.23'
+	compile 'org.yaml:snakeyaml:1.17'
+	testCompile 'junit:junit:4.12'
+}
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes 'Implementation-Title': 'DataSays wCodeGen',
+		'Implementation-Version': version,
+		'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
+	}
+
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -26,21 +52,21 @@ repositories {
 	jcenter()
 }
 
-dependencies {
-	compile 'io.github.datasays:wUtil:1.1'
-	compile 'org.jodd:jodd-lagarto:3.7.1'
-	compile 'org.jodd:jodd-proxetta:3.7.1'
-    compile 'org.freemarker:freemarker:2.3.23'
-	compile 'org.yaml:snakeyaml:1.17'
-}
-
-task fatJar(type: Jar) {
-	manifest {
-		attributes 'Implementation-Title': 'Gradle Jar File Example',
-        	'Implementation-Version': version,
-        	'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
+idea{
+	project {
+		languageLevel = '1.8'
+		ipr {
+			withXml { provider ->
+				provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
+			}
+		}
 	}
-	baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+	module {
+		inheritOutputDirs = false
+		outputDir = file("$buildDir/classes/main/")
+		testOutputDir = file("$buildDir/classes/test/")
+	}
+}
+configurations {
+	published
 }
