@@ -20,8 +20,7 @@ description: DataSays wCodeGen
 applyFrom: ./bintray.gradle
 deps:
   - compile 'io.github.datasays:wUtil:1.1'
-  - compile 'org.jodd:jodd-lagarto:3.7.1'
-  - compile 'org.jodd:jodd-proxetta:3.7.1'
+  - compile 'org.jodd:jodd-core:3.8.1'
   - compile 'org.freemarker:freemarker:2.3.23'
   - compile 'org.yaml:snakeyaml:1.17'
   - ${junitDep}

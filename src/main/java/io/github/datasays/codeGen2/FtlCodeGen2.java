@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 /**
  * Created by watano on 2017/1/21.
+ * gen code from freemarker tpl and yaml data
  */
 public class FtlCodeGen2 {
 	private static final Logger LOG = LoggerFactory.getLogger(FtlCodeGen2.class);

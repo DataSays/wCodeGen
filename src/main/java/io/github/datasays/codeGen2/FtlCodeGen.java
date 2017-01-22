@@ -1,5 +1,17 @@
 package io.github.datasays.codeGen2;
 
+import com.google.gson.JsonSyntaxException;
+import io.github.datasays.util.freemarker.FreemarkerHelper;
+import jodd.io.FileNameUtil;
+import jodd.io.FileUtil;
+import jodd.io.watch.DirWatcher;
+import jodd.io.watch.DirWatcherListener;
+import org.datasays.util.FindFileUtil;
+import org.datasays.util.WCfg;
+import org.datasays.util.WJsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
@@ -7,20 +19,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.datasays.util.FindFileUtil;
-import org.datasays.util.WCfg;
-import org.datasays.util.WJsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonSyntaxException;
-import io.github.datasays.util.freemarker.FreemarkerHelper;
-
-import jodd.io.FileNameUtil;
-import jodd.io.FileUtil;
-import jodd.io.watch.DirWatcher;
-import jodd.io.watch.DirWatcherListener;
-
+/*
+	gen code from freemarker ftl file and json data.
+ */
 public class FtlCodeGen {
 	private static final String Ftl = ".ftl";
 	private static final String Html = ".html";
