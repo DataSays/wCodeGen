@@ -24,26 +24,31 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 	@Override
 	public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 		try {
-			//render body
-			StringWriter sw = new StringWriter();
-			body.render(sw);
-			String code = sw.toString();
-
-			//print comment
-			String comment = params.get("comment").toString();
-			if(StringUtil.isNotBlank(comment)){
-				LOG.info(comment);
-			}
-
-			//gen the code files
-			//LOG.debug(code);
 			String out = params.get("out").toString();
 			File outFile = new File(out);
-			if(!outFile.getParentFile().exists()){
-				FileUtil.mkdirs(outFile.getParentFile());
+			if(outFile.isDirectory()){
+				FileUtil.mkdirs(outFile);
+			}else {
+				//render body
+				StringWriter sw = new StringWriter();
+				body.render(sw);
+				String code = sw.toString();
+
+				//print comment
+				String comment = params.get("comment").toString();
+				if(StringUtil.isNotBlank(comment)){
+					LOG.info(comment);
+				}
+
+				if (!outFile.getParentFile().exists()) {
+					FileUtil.mkdirs(outFile.getParentFile());
+				}
+
+				//gen the code files
+				//LOG.debug(code);
+				LOG.info(out + "-->" + outFile.getAbsolutePath());
+				FileUtil.writeString(outFile, code, "utf-8");
 			}
-			LOG.info(out+"-->"+outFile.getAbsolutePath());
-			FileUtil.writeString(outFile, code, "utf-8");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

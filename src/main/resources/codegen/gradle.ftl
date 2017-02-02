@@ -97,6 +97,10 @@ ${cfg.ExtCodes!''}
 </#list>
 </#macro>
 
+<@WriteFtl out="./src/main/java/" />
+<@WriteFtl out="./src/main/resources/" />
+<@WriteFtl out="./src/test/java/" />
+<@WriteFtl out="./src/test/resources/" />
 <@WriteFtl out="./build.gradle" comment='gen main project'>
 <@genCommon cfg=data />
 <#if (data.subProjects)?? && data.subProjects?size gt 0>
