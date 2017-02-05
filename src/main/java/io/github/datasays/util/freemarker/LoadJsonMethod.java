@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by watano on 2017/2/5.
@@ -25,9 +24,9 @@ public class LoadJsonMethod implements TemplateMethodModelEx {
 			try {
 				String varName = args.get(0).toString();
 				String filePath = args.get(1).toString();
-				LOG.info("LoadJson("+varName+", "+filePath+")");
+				LOG.info("LoadJson(" + varName + ", " + filePath + ")");
 				Environment env = Environment.getCurrentEnvironment();
-				Objects data = WJsonUtils.fromJson(filePath, Objects.class);
+				Object data = WJsonUtils.fromJson(filePath, Object.class);
 				FreemarkerHelper.setVar(varName, data, env);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
