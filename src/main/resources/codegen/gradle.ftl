@@ -1,4 +1,6 @@
-<#assign jdkVersion='1.8' />
+<#assign data=data!{} />
+<#import 'inc/fn.ftl' as f>
+<#assign jdkVersion=(data.jdkVersion)!'1.8' />
 <#macro repositories>
 repositories {
 	mavenLocal()
@@ -93,25 +95,25 @@ ${cfg.ExtCodes!''}
 <#list data.subProjects?keys as subProjectName>
 	<#assign subProject=data.subProjects[subProjectName] />
 	<#assign subProject=subProject+{'project': subProjectName, 'group':data.group} />
-	<@WriteFtl out="/${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
+	<@f.writeFtl out="/${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
 		<@genCommon cfg=subProject />
 		<@javaPlugin project=subProject />
 		configurations {
 			published
 		}
-	</@WriteFtl>
+	</@f.writeFtl>
 </#list>
 </#macro>
 
 <#-- 生成默认目录-->
 <#if data.plugins?seq_contains('java')>
-	<@WriteFtl out="/src/main/java/" />
-	<@WriteFtl out="/src/main/resources/" />
-	<@WriteFtl out="/src/test/java/" />
-	<@WriteFtl out="/src/test/resources/" />
+	<@f.writeFtl out="/src/main/java/" />
+	<@f.writeFtl out="/src/main/resources/" />
+	<@f.writeFtl out="/src/test/java/" />
+	<@f.writeFtl out="/src/test/resources/" />
 </#if>
 <#-- 生成主项目-->
-<@WriteFtl out="/build.gradle" comment='gen main project'>
+<@f.writeFtl out="/build.gradle" comment='gen main project'>
 	<@genCommon cfg=data />
 	<#-- 有子项目-->
 	<#if (data.subProjects)?? && data.subProjects?size gt 0>
@@ -120,9 +122,9 @@ ${cfg.ExtCodes!''}
 		}
 		<@idea />
 		<@genSubProject />
-		<@WriteFtl out="/settings.gradle" comment='gen settings.gradle'>
+		<@f.writeFtl out="/settings.gradle" comment='gen settings.gradle'>
 			include <#list data.subProjects?keys as subProjectName>':${subProjectName}'${(subProjectName?has_next)?string(', ', '')}</#list>
-		</@WriteFtl>
+		</@f.writeFtl>
 	<#else><#-- 没有子项目 -->
 		<@repositories />
 		<@idea />
@@ -131,4 +133,4 @@ ${cfg.ExtCodes!''}
 			published
 		}
 	</#if>
-</@WriteFtl>
+</@f.writeFtl>

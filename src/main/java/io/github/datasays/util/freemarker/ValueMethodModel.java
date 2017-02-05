@@ -1,29 +1,29 @@
 package io.github.datasays.util.freemarker;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 import freemarker.core.Environment;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class ValueMethodModel implements TemplateMethodModelEx {
-	private static final Logger LOG = Logger.getLogger(ValueMethodModel.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FreemarkerHelper.class);
 
 	@Override
 	@SuppressWarnings({"rawtypes"})
 	public Object exec(List arguments) throws TemplateModelException {
 		try {
-			if(arguments != null && arguments.size() > 0) {
+			if (arguments != null && arguments.size() > 0) {
 				Environment env = Environment.getCurrentEnvironment();
-				Object value = env.getVariable((String)arguments.get(0));
-				if(value != null) {
+				Object value = env.getVariable((String) arguments.get(0));
+				if (value != null) {
 					return value;
 				}
 			}
-		}catch(Throwable t) {
-			LOG.error("", t);
+		} catch (Throwable e) {
+			LOG.error(e.getMessage(), e);
 		}
 		return null;
 	}

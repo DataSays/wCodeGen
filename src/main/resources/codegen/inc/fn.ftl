@@ -29,3 +29,24 @@
 <#function out text default=''>
 	<#return ((text!'') != '')?string(text?string, default) />
 </#function>
+
+<#macro writeFtl out comment=''>
+${log(comment)}
+<@WriteFtl out=out><#nested ></@WriteFtl>
+</#macro>
+
+<#function log msg=''>
+<#if msg!=''>
+	<#return Log(msg) />
+<#else >
+    <#return '' />
+</#if>
+</#function>
+
+<#function loadYaml varName filePath props='props'>
+	<#return LoadYaml(varName, filePath, props) />
+</#function>
+
+<#function loadJson varName filePath>
+	<#return LoadJson(varName, filePath) />
+</#function>

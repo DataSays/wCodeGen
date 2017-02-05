@@ -59,7 +59,6 @@ public class FtlCodeGen2 {
 					if (data.get("GenType") != null) {
 						genType = data.get("GenType").toString();
 					}
-					codegen.model.put("GenType", genType);
 					codegen.gen(genType);
 				}
 			}

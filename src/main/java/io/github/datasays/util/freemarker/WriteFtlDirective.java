@@ -6,7 +6,6 @@ import freemarker.template.TemplateDirectiveModel;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateModel;
 import jodd.io.FileUtil;
-import jodd.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +41,6 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 					body.render(sw);
 				}
 				String code = sw.toString();
-
-				//print comment
-				String comment = params.get("comment").toString();
-				if(StringUtil.isNotBlank(comment)){
-					LOG.info(comment);
-				}
 
 				if (!outFile.getParentFile().exists()) {
 					FileUtil.mkdirs(outFile.getParentFile());

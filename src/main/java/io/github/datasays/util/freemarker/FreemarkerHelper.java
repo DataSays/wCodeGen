@@ -44,7 +44,9 @@ public class FreemarkerHelper {
 		cfg.setSharedVariable("invokestatic", new InvokeStaticMethodModel());
 		cfg.setSharedVariable("value", new ValueMethodModel());
 		cfg.setSharedVariable("WriteFtl", new WriteFtlDirective());
+		cfg.setSharedVariable("Log", new LogMethod());
 		cfg.setSharedVariable("LoadYaml", new LoadYamlMethod());
+		cfg.setSharedVariable("LoadJson", new LoadJsonMethod());
 		cfg.setSharedVariable("LeftTab", new LeftTabDirective());
 		cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS));
 	}
@@ -157,6 +159,9 @@ public class FreemarkerHelper {
 			}
 			temp.process(model, out);
 		} catch (Exception e) {
+			if(out != null && out instanceof StringWriter){
+				System.out.println(out.toString());
+			}
 			LOG.error(e.getMessage(), e);
 		} finally {
 			StreamUtil.close(out);
