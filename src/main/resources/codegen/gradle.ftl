@@ -1,4 +1,3 @@
-<#assign data={} />
 <#assign jdkVersion='1.8' />
 <#macro commonCodes>
 sourceCompatibility = ${jdkVersion}
