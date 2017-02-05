@@ -21,7 +21,7 @@ public class FtlCodeGen2 {
 	public void init() {
 		fmHelper = new FreemarkerHelper();
 		fmHelper.init();
-		fmHelper.setTplLoader("classpath:/codegen/");
+		fmHelper.setTplLoader(".", "classpath:/codegen/");
 	}
 
 	public void gen(String ftl) {
