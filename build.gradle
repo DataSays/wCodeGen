@@ -12,7 +12,6 @@ plugins {
 group = 'io.github.datasays'
 version = '1.0'
 description = """DataSays wCodeGen"""
-archivesBaseName = 'wCodeGen'
 apply from: './bintray.gradle'
 
 dependencies {
@@ -23,34 +22,13 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 }
 
-task fatJar(type: Jar) {
-	manifest {
-		attributes 'Implementation-Title': 'DataSays wCodeGen',
-		'Implementation-Version': version,
-		'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
-	}
-
-	baseName = project.name + '-all'
-	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-	with jar
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-tasks.withType(JavaCompile) {
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
-	options.encoding = "UTF-8"
-}
 
 repositories {
 	mavenLocal()
 	maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-	//mavenCentral()
 	jcenter()
+	//mavenCentral()
 }
-
 idea{
 	project {
 		languageLevel = '1.8'
@@ -66,6 +44,30 @@ idea{
 		testOutputDir = file("$buildDir/classes/test/")
 	}
 }
-configurations {
-	published
+jar {
+	baseName = 'wCodeGen'
+	version = '1.0'
 }
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+	options.encoding = "UTF-8"
+}
+task fatJar(type: Jar) {
+	manifest {
+		attributes 'Implementation-Title': 'DataSays wCodeGen',
+		'Implementation-Version': version,
+		'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
+	}
+
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
+		configurations {
+			published
+		}
