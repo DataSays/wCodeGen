@@ -27,12 +27,14 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 			String out = params.get("out").toString();
 			out = out.trim();
 			String workDir = ".";
-			if(env.getLocalVariable("WorkDir") != null){
-				workDir = env.getLocalVariable("WorkDir").toString();
+			Object workDirTmp = FreemarkerHelper.getVar("WorkDir", env);
+			if(workDirTmp != null){
+				workDir = workDirTmp.toString();
 			}
 			File outFile = new File(workDir+out);
 			if(out.endsWith("/") || out.endsWith("\\")){
 				FileUtil.mkdirs(outFile);
+				LOG.info("mkdirs-->" + outFile.getAbsolutePath());
 			}else {
 				//render body
 				StringWriter sw = new StringWriter();

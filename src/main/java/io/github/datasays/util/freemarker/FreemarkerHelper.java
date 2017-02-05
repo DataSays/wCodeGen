@@ -13,6 +13,12 @@ import freemarker.template.SimpleNumber;
 import freemarker.template.SimpleScalar;
 import freemarker.template.SimpleSequence;
 import freemarker.template.Template;
+import freemarker.template.TemplateBooleanModel;
+import freemarker.template.TemplateDateModel;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateNumberModel;
+import freemarker.template.TemplateScalarModel;
 import jodd.io.FileUtil;
 import jodd.io.StreamUtil;
 import org.slf4j.Logger;
@@ -58,30 +64,64 @@ public class FreemarkerHelper {
 		}
 	}
 
-	public static void setVar(String varName, Object data, Environment env){
-		if(data == null){
+	public static void setVar(String varName, Object data, Environment env) {
+		if (data == null) {
 			return;
 		}
-		if(env == null){
+		if (env == null) {
 			env = Environment.getCurrentEnvironment();
 		}
-		if(data instanceof Map) {
+		if (data instanceof Map) {
 			env.setVariable(varName, new SimpleHash((Map) data, env.getObjectWrapper()));
-		}else if(data instanceof List){
-			env.setVariable(varName, new SimpleSequence((List)data, env.getObjectWrapper()));
-		}else if(data instanceof String){
-			env.setVariable(varName, new SimpleScalar((String)data));
-		}else if(data instanceof Number){
-			env.setVariable(varName, new SimpleNumber((Number)data));
-		}else if(data instanceof java.sql.Date){
-			env.setVariable(varName, new SimpleDate((java.sql.Date)data));
-		}else if(data instanceof java.sql.Time){
-			env.setVariable(varName, new SimpleDate((java.sql.Time)data));
-		}else if(data instanceof java.sql.Timestamp){
-			env.setVariable(varName, new SimpleDate((java.sql.Timestamp)data));
-		}else if(data instanceof Date){
-			env.setVariable(varName, new SimpleDate((Date)data, 3));
+		} else if (data instanceof List) {
+			env.setVariable(varName, new SimpleSequence((List) data, env.getObjectWrapper()));
+		} else if (data instanceof String) {
+			env.setVariable(varName, new SimpleScalar((String) data));
+		} else if (data instanceof Number) {
+			env.setVariable(varName, new SimpleNumber((Number) data));
+		} else if (data instanceof java.sql.Date) {
+			env.setVariable(varName, new SimpleDate((java.sql.Date) data));
+		} else if (data instanceof java.sql.Time) {
+			env.setVariable(varName, new SimpleDate((java.sql.Time) data));
+		} else if (data instanceof java.sql.Timestamp) {
+			env.setVariable(varName, new SimpleDate((java.sql.Timestamp) data));
+		} else if (data instanceof Date) {
+			env.setVariable(varName, new SimpleDate((Date) data, 3));
 		}
+	}
+
+	public static Object getVar(String varName, Environment env) {
+		Object value = null;
+		if (varName != null && varName.trim().length() > 0) {
+			varName = varName.trim();
+			try {
+				TemplateModel data = env.getVariable(varName);
+				if (data == null) {
+					data = env.getLocalVariable(varName);
+				}
+				if (data == null) {
+					data = env.getGlobalVariable(varName);
+				}
+				if (data == null) {
+					return null;
+				}
+				if (data instanceof TemplateScalarModel) {
+					return ((TemplateScalarModel) data).getAsString();
+				} else if (data instanceof TemplateNumberModel) {
+					return ((TemplateNumberModel) data).getAsNumber();
+				} else if (data instanceof TemplateBooleanModel) {
+					return ((TemplateBooleanModel) data).getAsBoolean();
+				} else if (data instanceof TemplateDateModel) {
+					return ((TemplateDateModel) data).getAsDate();
+				}
+			} catch (TemplateModelException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		if (env == null) {
+			env = Environment.getCurrentEnvironment();
+		}
+		return value;
 	}
 
 	public void setTplLoader(String... loaders) {
