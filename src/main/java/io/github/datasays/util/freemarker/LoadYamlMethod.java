@@ -1,7 +1,6 @@
 package io.github.datasays.util.freemarker;
 
 import freemarker.core.Environment;
-import freemarker.template.SimpleHash;
 import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModelException;
@@ -30,7 +29,7 @@ public class LoadYamlMethod implements TemplateMethodModelEx {
 					propsField = args.get(2).toString();
 				}
 				Map<?,?> data = YamlUtil.loadAndEval(args.get(1).toString(), propsField);
-				env.setVariable(args.get(0).toString(), new SimpleHash(data, env.getObjectWrapper()));
+				FreemarkerHelper.setVar(args.get(0).toString(), data, env);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}

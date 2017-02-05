@@ -1,6 +1,5 @@
 <#assign data={} />
 <#assign jdkVersion='1.8' />
-${LoadYaml('data', './gradle.yml', 'props')}
 <#macro commonCodes>
 sourceCompatibility = ${jdkVersion}
 targetCompatibility = ${jdkVersion}
@@ -86,7 +85,7 @@ ${cfg.ExtCodes!''}
 <#list data.subProjects?keys as subProjectName>
 	<#assign subProject=data.subProjects[subProjectName] />
 	<#assign subProject=subProject+{'project': subProjectName, 'group':data.group} />
-	<@WriteFtl out="./${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
+	<@WriteFtl out="/${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
 	<@genCommon cfg=subProject />
 	<@LeftTab left=-1>
 	configurations {
@@ -97,11 +96,11 @@ ${cfg.ExtCodes!''}
 </#list>
 </#macro>
 
-<@WriteFtl out="./src/main/java/" />
-<@WriteFtl out="./src/main/resources/" />
-<@WriteFtl out="./src/test/java/" />
-<@WriteFtl out="./src/test/resources/" />
-<@WriteFtl out="./build.gradle" comment='gen main project'>
+<@WriteFtl out="/src/main/java/" />
+<@WriteFtl out="/src/main/resources/" />
+<@WriteFtl out="/src/test/java/" />
+<@WriteFtl out="/src/test/resources/" />
+<@WriteFtl out="/build.gradle" comment='gen main project'>
 <@genCommon cfg=data />
 <#if (data.subProjects)?? && data.subProjects?size gt 0>
 subprojects {
@@ -110,6 +109,9 @@ subprojects {
 	</@LeftTab>
 }
 <@genSubProject />
+<@WriteFtl out="/settings.gradle" comment='gen settings.gradle'>
+include <#list data.subProjects?keys as subProjectName>':${subProjectName}'${(subProjectName?has_next)?string(', ', '')}</#list>
+</@WriteFtl>
 <#else>
 <@commonCodes />
 configurations {

@@ -4,8 +4,14 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
+import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.SimpleDate;
+import freemarker.template.SimpleHash;
+import freemarker.template.SimpleNumber;
+import freemarker.template.SimpleScalar;
+import freemarker.template.SimpleSequence;
 import freemarker.template.Template;
 import jodd.io.FileUtil;
 import jodd.io.StreamUtil;
@@ -16,6 +22,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +55,32 @@ public class FreemarkerHelper {
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
+		}
+	}
+
+	public static void setVar(String varName, Object data, Environment env){
+		if(data == null){
+			return;
+		}
+		if(env == null){
+			env = Environment.getCurrentEnvironment();
+		}
+		if(data instanceof Map) {
+			env.setVariable(varName, new SimpleHash((Map) data, env.getObjectWrapper()));
+		}else if(data instanceof List){
+			env.setVariable(varName, new SimpleSequence((List)data, env.getObjectWrapper()));
+		}else if(data instanceof String){
+			env.setVariable(varName, new SimpleScalar((String)data));
+		}else if(data instanceof Number){
+			env.setVariable(varName, new SimpleNumber((Number)data));
+		}else if(data instanceof java.sql.Date){
+			env.setVariable(varName, new SimpleDate((java.sql.Date)data));
+		}else if(data instanceof java.sql.Time){
+			env.setVariable(varName, new SimpleDate((java.sql.Time)data));
+		}else if(data instanceof java.sql.Timestamp){
+			env.setVariable(varName, new SimpleDate((java.sql.Timestamp)data));
+		}else if(data instanceof Date){
+			env.setVariable(varName, new SimpleDate((Date)data, 3));
 		}
 	}
 

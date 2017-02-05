@@ -25,13 +25,20 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 	public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 		try {
 			String out = params.get("out").toString();
-			File outFile = new File(out);
-			if(outFile.isDirectory()){
+			out = out.trim();
+			String workDir = ".";
+			if(env.getLocalVariable("WorkDir") != null){
+				workDir = env.getLocalVariable("WorkDir").toString();
+			}
+			File outFile = new File(workDir+out);
+			if(out.endsWith("/") || out.endsWith("\\")){
 				FileUtil.mkdirs(outFile);
 			}else {
 				//render body
 				StringWriter sw = new StringWriter();
-				body.render(sw);
+				if(body!= null){
+					body.render(sw);
+				}
 				String code = sw.toString();
 
 				//print comment
