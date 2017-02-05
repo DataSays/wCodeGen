@@ -35,6 +35,10 @@ ${log(comment)}
 <@WriteFtl out=out><#nested ></@WriteFtl>
 </#macro>
 
+<#macro leftTab left>
+	<@LeftTab left=left><#nested ></@LeftTab>
+</#macro>
+
 <#function log msg=''>
 <#if msg!=''>
 	<#return Log(msg) />
@@ -50,3 +54,4 @@ ${log(comment)}
 <#function loadJson varName filePath>
 	<#return LoadJson(varName, filePath) />
 </#function>
+

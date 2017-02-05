@@ -74,21 +74,21 @@ public class FreemarkerHelper {
 			env = Environment.getCurrentEnvironment();
 		}
 		if (data instanceof Map) {
-			env.setVariable(varName, new SimpleHash((Map) data, env.getObjectWrapper()));
+			env.setGlobalVariable(varName, new SimpleHash((Map) data, env.getObjectWrapper()));
 		} else if (data instanceof List) {
-			env.setVariable(varName, new SimpleSequence((List) data, env.getObjectWrapper()));
+			env.setGlobalVariable(varName, new SimpleSequence((List) data, env.getObjectWrapper()));
 		} else if (data instanceof String) {
-			env.setVariable(varName, new SimpleScalar((String) data));
+			env.setGlobalVariable(varName, new SimpleScalar((String) data));
 		} else if (data instanceof Number) {
-			env.setVariable(varName, new SimpleNumber((Number) data));
+			env.setGlobalVariable(varName, new SimpleNumber((Number) data));
 		} else if (data instanceof java.sql.Date) {
-			env.setVariable(varName, new SimpleDate((java.sql.Date) data));
+			env.setGlobalVariable(varName, new SimpleDate((java.sql.Date) data));
 		} else if (data instanceof java.sql.Time) {
-			env.setVariable(varName, new SimpleDate((java.sql.Time) data));
+			env.setGlobalVariable(varName, new SimpleDate((java.sql.Time) data));
 		} else if (data instanceof java.sql.Timestamp) {
-			env.setVariable(varName, new SimpleDate((java.sql.Timestamp) data));
+			env.setGlobalVariable(varName, new SimpleDate((java.sql.Timestamp) data));
 		} else if (data instanceof Date) {
-			env.setVariable(varName, new SimpleDate((Date) data, 3));
+			env.setGlobalVariable(varName, new SimpleDate((Date) data, 3));
 		}
 	}
 
