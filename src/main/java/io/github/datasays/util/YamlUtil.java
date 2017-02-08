@@ -15,11 +15,11 @@ public class YamlUtil {
 		return loadAndEval(file, null);
 	}
 
-	public static Map<?, ?> loadAndEval(String file, String propsField) throws IOException {
+	public static Map<String, Object> loadAndEval(String file, String propsField) throws IOException {
 		Yaml yml = new Yaml();
 		String codes = FileUtil.readString(file, "utf-8");
 		if (propsField != null) {
-			Map<?, ?> data = yml.loadAs(codes, Map.class);
+			Map<String, Object> data = (Map<String, Object>) yml.loadAs(codes, Map.class);
 			Object propsObj = data.get(propsField);
 			if (propsObj != null && propsObj instanceof Map) {
 				Map<?, ?> props = (Map<?, ?>) propsObj;
@@ -28,6 +28,6 @@ public class YamlUtil {
 				}
 			}
 		}
-		return yml.loadAs(codes, Map.class);
+		return (Map<String, Object>) yml.loadAs(codes, Map.class);
 	}
 }

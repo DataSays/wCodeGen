@@ -61,7 +61,13 @@ task fatJar(type: Jar) {
 <#macro genCommon cfg>
 plugins {
 	<#list cfg.plugins as plugin>
-	id '${plugin}'
+	${'\t'}<#compress>
+		<#assign tmpIndex=plugin?index_of(':') />
+		<#if tmpIndex gt 0>id '${plugin[0..tmpIndex-1]}' version '${plugin[(tmpIndex+1)..]}'
+		<#else >id '${plugin}'
+		</#if>
+	</#compress>
+
 	</#list>
 }
 
@@ -98,9 +104,9 @@ ${cfg.ExtCodes!''}
 	<@f.writeFtl out="/${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
 		<@genCommon cfg=subProject />
 		<@javaPlugin project=subProject />
-		configurations {
-			published
-		}
+configurations {
+	published
+}
 	</@f.writeFtl>
 </#list>
 </#macro>
@@ -117,9 +123,9 @@ ${cfg.ExtCodes!''}
 	<@genCommon cfg=data />
 	<#-- 有子项目-->
 	<#if (data.subProjects)?? && data.subProjects?size gt 0>
-		subprojects {
-			<@repositories />
-		}
+subprojects {
+	<@repositories />
+}
 		<@idea />
 		<@genSubProject />
 		<@f.writeFtl out="/settings.gradle" comment='gen settings.gradle'>
@@ -129,8 +135,8 @@ ${cfg.ExtCodes!''}
 		<@repositories />
 		<@idea />
 		<@javaPlugin project=data />
-		configurations {
-			published
-		}
+configurations {
+	published
+}
 	</#if>
 </@f.writeFtl>
