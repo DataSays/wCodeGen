@@ -84,6 +84,14 @@ dependencies {
 }
 </#if>
 
+<#if (cfg.dependencyManagement)?? && cfg.dependencyManagement?size gt 0>
+dependencyManagement {
+	<#list cfg.dependencyManagement as depManagement>
+	${depManagement}
+	</#list>
+}
+</#if>
+
 <#list (cfg.GradleJavaTask!{})?keys as taskName>
 <#assign taskArgs=cfg.GradleJavaTask[taskName] />
 task ${taskName}(type: JavaExec, dependsOn: []) {

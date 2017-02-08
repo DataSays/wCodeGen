@@ -19,7 +19,7 @@ import java.util.Map;
 public class ProjectGen {
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectGen.class);
 	private String WorkDir = ".";
-	private Map<String, Object> data = null;
+	private JsonObjGetter data = null;
 	private Map<String, String[]> versions = null;
 	private YmlGenHelper helper = null;
 
@@ -34,12 +34,7 @@ public class ProjectGen {
 
 	public void loadYmlData(String dataFile) {
 		try {
-			Map<String, Object> newData = YamlUtil.loadAndEval(dataFile, "props");
-			if (data != null && newData != null) {
-				data.putAll(newData);
-			} else if (newData != null) {
-				data = newData;
-			}
+			data = YamlUtil.loadAndEval(dataFile, "props");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -49,10 +44,10 @@ public class ProjectGen {
 		if (versions == null) {
 			versions = new HashMap<>();
 			try {
-				Map<String, Object> data = YamlUtil.loadAndEval(WorkDir + "/versions.yml", "props");
+				JsonObjGetter data = YamlUtil.loadAndEval("./versions.yml", "props");
 				if (data != null) {
-					for (String libId : data.keySet()) {
-						versions.put(libId, StringUtil.split(data.get(libId).toString(), ":"));
+					for (Object libId : data.map().keySet()) {
+						versions.put(libId.toString(), StringUtil.split(data.str(libId), ":"));
 					}
 				}
 			} catch (IOException e) {
@@ -112,44 +107,47 @@ public class ProjectGen {
 
 	public void genGradle() {
 		try {
-			WorkDir = data.get("WorkDir") != null ? data.get("WorkDir").toString() : ".";
-			helper.set("WorkDir", data.get("WorkDir"));
+			WorkDir = data.str("WorkDir") != null ? data.str("WorkDir").toString() : ".";
+			helper.set("WorkDir", WorkDir);
 			helper.set("GenType", "gradle");
 			helper.comment(null);
 
 			helper.inlineMap("props");
-			helper.set("group", data.get("group"));
-			helper.set("project", data.get("project"));
-			helper.set("version", data.get("version"));
+			helper.set("group", data.str("group"));
+			helper.set("project", data.str("project"));
+			helper.set("version", data.str("version"));
 			//plugins
 			appendPlugins("eclipse", "idea", "plugin-versions");
-			helper.set("description", data.get("description"));
+			helper.set("description", data.str("description"));
 			//outObj.setNotNull("applyFrom", "/bintray.gradle");
-			if (data.get("subProjects") == null) {
-				String[] components = (String[]) data.get("components");
+			if (data.obj("subProjects") == null) {
+				List<?> components = data.list("components");
 				helper.beginLst("deps");
-				for (String component : components) {
-					appendComponentDep(component);
+				for (Object component : components) {
+					appendComponentDep(component.toString());
 				}
 				helper.endLst();
 			} else {
-				JsonObjGetter subProjects = new JsonObjGetter(data.get("subProjects"));
+				JsonObjGetter subProjects = data.obj("subProjects");
 				helper.beginMap("subProjects");
 				for (Object name : subProjects.map().keySet()) {
 					String subProjectName = name.toString();
 					helper.beginMap(subProjectName);
 					JsonObjGetter subProject = subProjects.obj(subProjectName);
-					helper.set("version", data.get("version"));
+					helper.set("version", data.str("version"));
 					helper.set("description", subProject.str("description"));
 					//plugin
 					appendPlugins("java", "eclipse", "idea", "plugin-boot");
-					//deps
-
+					//components
 					List<?> components = subProject.list("components");
 					helper.beginLst("deps");
 					for (Object component : components) {
 						appendComponentDep(component.toString());
 					}
+					helper.endLst();
+					//set dependencyManagement
+					helper.beginLst("dependencyManagement");
+					helper.addLst("imports { mavenBom 'org.springframework.cloud:spring-cloud-dependencies:"+data.obj("props").str("spring-cloud")+"' }");
 					helper.endLst();
 
 					helper.endMap();
@@ -158,7 +156,7 @@ public class ProjectGen {
 			}
 
 			//write File
-			helper.writeFile(WorkDir + "/gradle.yml");
+			helper.writeFile("./gradle.yml");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

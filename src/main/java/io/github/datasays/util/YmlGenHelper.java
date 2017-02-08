@@ -1,30 +1,9 @@
 package io.github.datasays.util;
 
-import jodd.util.StringUtil;
-
 /**
  * Created by watano on 2017/2/7.
  */
 public class YmlGenHelper extends CodeGenHelper {
-	private int indent = 0;
-
-	private YmlGenHelper beginIndent() {
-		indent++;
-		return this;
-	}
-
-	private YmlGenHelper endIndent() {
-		indent--;
-		if (indent < 0) {
-			indent = 0;
-		}
-		return this;
-	}
-
-	private String indent(){
-		return 	StringUtil.repeat("  ", indent);
-	}
-
 	private String val(Object value) {
 		return value.toString();
 	}

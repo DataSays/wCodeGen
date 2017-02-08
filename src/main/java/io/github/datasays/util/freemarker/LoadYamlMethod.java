@@ -31,7 +31,7 @@ public class LoadYamlMethod implements TemplateMethodModelEx {
 					propsField = args.get(2).toString();
 				}
 				LOG.info("LoadYaml("+varName+", "+filePath+", "+(propsField!=null?propsField:"")+")");
-				Map<?, ?> data = YamlUtil.loadAndEval(filePath, propsField);
+				Map<?, ?> data = YamlUtil.loadAndEval(filePath, propsField).map();
 				FreemarkerHelper.setVar(varName, data, env);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);

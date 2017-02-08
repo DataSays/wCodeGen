@@ -2,6 +2,7 @@ package io.github.datasays.codeGen2;
 
 import io.github.datasays.util.YamlUtil;
 import io.github.datasays.util.freemarker.FreemarkerHelper;
+import org.datasays.util.JsonObjGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,20 +45,20 @@ public class FtlCodeGen2 {
 				for (String arg : args) {
 					String dataFile = arg.trim();
 					//load data yml files, the "props" is the local vars;
-					Map<?, ?> data = YamlUtil.loadAndEval(dataFile, "props");
-					codegen.model.put("data", data);
+					JsonObjGetter data = YamlUtil.loadAndEval(dataFile, "props");
+					codegen.model.put("data", data.map());
 
 					//gen code root dir
 					String workDir = ".";
-					if (data.get("WorkDir") != null) {
-						workDir = data.get("WorkDir").toString();
+					if (data.str("WorkDir") != null) {
+						workDir = data.str("WorkDir");
 					}
 					codegen.model.put("WorkDir", workDir);
 
 					//code gen tpl
 					String genType = "gradle";
-					if (data.get("GenType") != null) {
-						genType = data.get("GenType").toString();
+					if (data.str("GenType") != null) {
+						genType = data.str("GenType");
 					}
 					codegen.gen(genType);
 				}

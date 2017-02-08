@@ -1,6 +1,7 @@
 package io.github.datasays.util;
 
 import jodd.io.FileUtil;
+import jodd.util.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.io.IOException;
 public class CodeGenHelper {
 	private StringBuffer codeBuff = null;
 	private String encoding = "utf-8";
+	protected int indent = 0;
 
 	public CodeGenHelper() {
 		init();
@@ -35,6 +37,23 @@ public class CodeGenHelper {
 		codeBuff.append(line);
 		codeBuff.append("\r\n");
 		return this;
+	}
+
+	protected CodeGenHelper beginIndent() {
+		indent++;
+		return this;
+	}
+
+	protected CodeGenHelper endIndent() {
+		indent--;
+		if (indent < 0) {
+			indent = 0;
+		}
+		return this;
+	}
+
+	protected String indent() {
+		return StringUtil.repeat("  ", indent);
 	}
 
 	public String getCode() {
