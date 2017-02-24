@@ -1,37 +1,29 @@
 package io.github.datasays.codeGen2;
 
-import io.github.datasays.util.YamlUtil;
 import io.github.datasays.util.freemarker.FreemarkerHelper;
-import org.datasays.util.JsonObjGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by watano on 2017/1/21.
  * gen code from freemarker tpl and yaml data
  */
-public class FtlCodeGen2 {
+public class FtlCodeGen2 extends AYmlCodeGen{
 	private static final Logger LOG = LoggerFactory.getLogger(FtlCodeGen2.class);
 
-	private FreemarkerHelper fmHelper = null;
-	private Map<String, Object> model = null;
+	protected FreemarkerHelper fmHelper = null;
 
 	public void init() {
+		super.init();
 		fmHelper = new FreemarkerHelper();
 		fmHelper.init();
 		fmHelper.setTplLoader(".", "classpath:/codegen/");
-		model = new HashMap<>();
 	}
 
-	public void gen(String ftl) {
+	@Override
+	public void gen() {
 		try {
-			StringWriter sw = new StringWriter();
-			fmHelper.process(ftl + ".ftl", model, sw);
-			LOG.info(sw.toString());
+			fmHelper.process(genType + ".ftl", model);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -39,30 +31,9 @@ public class FtlCodeGen2 {
 
 	public static void main(String[] args) {
 		try {
-			if (args != null && args.length > 0) {
-				FtlCodeGen2 codegen = new FtlCodeGen2();
-				codegen.init();
-				for (String arg : args) {
-					String dataFile = arg.trim();
-					//load data yml files, the "props" is the local vars;
-					JsonObjGetter data = YamlUtil.loadAndEval(dataFile, "props");
-					codegen.model.put("data", data.map());
-
-					//gen code root dir
-					String workDir = ".";
-					if (data.str("WorkDir") != null) {
-						workDir = data.str("WorkDir");
-					}
-					codegen.model.put("WorkDir", workDir);
-
-					//code gen tpl
-					String genType = "gradle";
-					if (data.str("GenType") != null) {
-						genType = data.str("GenType");
-					}
-					codegen.gen(genType);
-				}
-			}
+			FtlCodeGen2 codegen = new FtlCodeGen2();
+			codegen.init();
+			codegen.genAll(args);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

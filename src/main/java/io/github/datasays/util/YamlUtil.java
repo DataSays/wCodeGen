@@ -2,7 +2,7 @@ package io.github.datasays.util;
 
 import jodd.io.FileUtil;
 import jodd.util.StringUtil;
-import org.datasays.util.JsonObjGetter;
+import org.nutz.lang.util.NutMap;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -12,22 +12,25 @@ import java.util.Map;
  * Created by watano on 2017/1/21.
  */
 public class YamlUtil {
-	public static JsonObjGetter load(String file) throws IOException {
-		return loadAndEval(file, null);
+
+	@SuppressWarnings("unchecked")
+	public static NutMap load(String codes) throws IOException {
+		Yaml yml = new Yaml();
+		Map<String, Object> data = (Map<String, Object>) yml.loadAs(codes, Map.class);
+		return NutMap.WRAP(data);
 	}
 
-	public static JsonObjGetter loadAndEval(String file, String propsField) throws IOException {
-		Yaml yml = new Yaml();
+	public static NutMap evalYml(String file, String propsField) throws IOException {
 		String codes = FileUtil.readString(file, "utf-8");
 		if (propsField != null) {
-			JsonObjGetter data = new JsonObjGetter(yml.loadAs(codes, Map.class));
-			JsonObjGetter propsObj = data.obj(propsField);
-			if (propsObj != null && propsObj instanceof Map) {
-				for (Object k : propsObj.map().keySet()) {
-					codes = StringUtil.replace(codes, "${" + k.toString() + "}", propsObj.str(k));
+			NutMap data = load(codes);
+			NutMap propsObj = data.getAs(propsField, NutMap.class);
+			if (propsObj != null) {
+				for (String k : propsObj.keySet()) {
+					codes = StringUtil.replace(codes, "${" + k + "}", propsObj.getString(k));
 				}
 			}
 		}
-		return new JsonObjGetter(yml.loadAs(codes, Map.class));
+		return load(codes);
 	}
 }

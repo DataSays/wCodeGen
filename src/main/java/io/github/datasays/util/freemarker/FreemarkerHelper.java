@@ -47,7 +47,6 @@ public class FreemarkerHelper {
 		cfg.setSharedVariable("Log", new LogMethod());
 		cfg.setSharedVariable("LoadYaml", new LoadYamlMethod());
 		cfg.setSharedVariable("LoadJson", new LoadJsonMethod());
-		cfg.setSharedVariable("LeftTab", new LeftTabDirective());
 		cfg.setObjectWrapper(new DefaultObjectWrapper(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS));
 	}
 
@@ -150,14 +149,20 @@ public class FreemarkerHelper {
 		return cfg;
 	}
 
+	public String process(String ftlName, Map<String, Object> model){
+		StringWriter sw = new StringWriter();
+		this.process(ftlName, model, sw);
+		return sw.toString();
+	}
+
 	public void process(String ftlName, Map<String, Object> model, Writer out) {
-		Template temp;
+		Template tpl;
 		try {
-			temp = cfg.getTemplate(ftlName);
+			tpl = cfg.getTemplate(ftlName);
 			if (model == null) {
 				model = new Hashtable<String, Object>();
 			}
-			temp.process(model, out);
+			tpl.process(model, out);
 		} catch (Exception e) {
 			if(out != null && out instanceof StringWriter){
 				System.out.println(out.toString());

@@ -6,7 +6,6 @@ props:
     okhttp: 3.5.0
     okio: 1.11.0
     springboot: 1.4.2.RELEASE
-    junitDep: "testCompile 'junit:junit:4.12'"
     #maven-publish: nebula.maven-publish' version '4.9.1
     maven-publish: maven-publish
     bintray: com.jfrog.bintray' version '1.7.3
@@ -22,6 +21,7 @@ deps:
   - compile 'io.github.datasays:wUtil:1.1'
   - compile 'org.jodd:jodd-core:3.8.1'
   - compile 'org.freemarker:freemarker:2.3.23'
+  - compile 'org.nutz:nutz:1.r.60'
   - compile 'org.yaml:snakeyaml:1.17'
-  - ${junitDep}
+  - testCompile 'junit:junit:4.12'
 fatJar: io.github.datasays.codeGen2.FtlCodeGen2

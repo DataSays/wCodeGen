@@ -39,12 +39,19 @@ public class CodeGenHelper {
 		return this;
 	}
 
-	protected CodeGenHelper beginIndent() {
+	public CodeGenHelper appendln2(String line) {
+		codeBuff.append(indent());
+		codeBuff.append(line);
+		codeBuff.append("\r\n");
+		return this;
+	}
+
+	public CodeGenHelper beginIndent() {
 		indent++;
 		return this;
 	}
 
-	protected CodeGenHelper endIndent() {
+	public CodeGenHelper endIndent() {
 		indent--;
 		if (indent < 0) {
 			indent = 0;
@@ -53,7 +60,7 @@ public class CodeGenHelper {
 	}
 
 	protected String indent() {
-		return StringUtil.repeat("  ", indent);
+		return StringUtil.repeat("\t", indent);
 	}
 
 	public String getCode() {

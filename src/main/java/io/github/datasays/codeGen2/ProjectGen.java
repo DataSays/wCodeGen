@@ -3,7 +3,7 @@ package io.github.datasays.codeGen2;
 import io.github.datasays.util.YamlUtil;
 import io.github.datasays.util.YmlGenHelper;
 import jodd.util.StringUtil;
-import org.datasays.util.JsonObjGetter;
+import org.nutz.lang.util.NutMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 public class ProjectGen {
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectGen.class);
 	private String WorkDir = ".";
-	private JsonObjGetter data = null;
+	private NutMap data = null;
 	private Map<String, String[]> versions = null;
 	private YmlGenHelper helper = null;
 
@@ -34,7 +34,7 @@ public class ProjectGen {
 
 	public void loadYmlData(String dataFile) {
 		try {
-			data = YamlUtil.loadAndEval(dataFile, "props");
+			data = YamlUtil.evalYml(dataFile, "props");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -44,10 +44,10 @@ public class ProjectGen {
 		if (versions == null) {
 			versions = new HashMap<>();
 			try {
-				JsonObjGetter data = YamlUtil.loadAndEval("./versions.yml", "props");
+				NutMap data = YamlUtil.evalYml("./versions.yml", "props");
 				if (data != null) {
-					for (Object libId : data.map().keySet()) {
-						versions.put(libId.toString(), StringUtil.split(data.str(libId), ":"));
+					for (String libId : data.keySet()) {
+						versions.put(libId, StringUtil.split(data.getString(libId), ":"));
 					}
 				}
 			} catch (IOException e) {
@@ -107,47 +107,49 @@ public class ProjectGen {
 
 	public void genGradle() {
 		try {
-			WorkDir = data.str("WorkDir") != null ? data.str("WorkDir").toString() : ".";
+			WorkDir = data.getString("WorkDir", ".");
 			helper.set("WorkDir", WorkDir);
 			helper.set("GenType", "gradle");
 			helper.comment(null);
 
 			helper.inlineMap("props");
-			helper.set("group", data.str("group"));
-			helper.set("project", data.str("project"));
-			helper.set("version", data.str("version"));
+			NutMap props = data.getAs("props", NutMap.class);
+			helper.set("group", data.getString("group"));
+			helper.set("project", data.getString("project"));
+			helper.set("version", data.getString("version"));
 			//plugins
 			appendPlugins("eclipse", "idea", "plugin-versions");
-			helper.set("description", data.str("description"));
+			helper.set("description", data.getString("description"));
 			//outObj.setNotNull("applyFrom", "/bintray.gradle");
-			if (data.obj("subProjects") == null) {
-				List<?> components = data.list("components");
+			if (data.has("subProjects")) {
+				List<String> components = data.getList("components", String.class);
 				helper.beginLst("deps");
-				for (Object component : components) {
-					appendComponentDep(component.toString());
+				for (String component : components) {
+					appendComponentDep(component);
 				}
 				helper.endLst();
 			} else {
-				JsonObjGetter subProjects = data.obj("subProjects");
+				NutMap subProjects = data.getAs("subProjects", NutMap.class);
 				helper.beginMap("subProjects");
-				for (Object name : subProjects.map().keySet()) {
+				for (Object name : subProjects.keySet()) {
 					String subProjectName = name.toString();
 					helper.beginMap(subProjectName);
-					JsonObjGetter subProject = subProjects.obj(subProjectName);
-					helper.set("version", data.str("version"));
-					helper.set("description", subProject.str("description"));
+					NutMap subProject = subProjects.getAs(subProjectName, NutMap.class);
+					helper.set("version", data.getString("version"));
+					helper.set("archiveName", "app.jar");
+					helper.set("description", subProject.getString("description"));
 					//plugin
 					appendPlugins("java", "eclipse", "idea", "plugin-boot");
 					//components
-					List<?> components = subProject.list("components");
+					List<String> components = subProject.getList("components", String.class);
 					helper.beginLst("deps");
-					for (Object component : components) {
-						appendComponentDep(component.toString());
+					for (String component : components) {
+						appendComponentDep(component);
 					}
 					helper.endLst();
 					//set dependencyManagement
 					helper.beginLst("dependencyManagement");
-					helper.addLst("imports { mavenBom 'org.springframework.cloud:spring-cloud-dependencies:"+data.obj("props").str("spring-cloud")+"' }");
+					helper.addLst("imports { mavenBom 'org.springframework.cloud:spring-cloud-dependencies:" + props.getString("spring-cloud") + "' }");
 					helper.endLst();
 
 					helper.endMap();
@@ -162,7 +164,7 @@ public class ProjectGen {
 		}
 	}
 
-	public void genAllCodes(String dataFile){
+	public void genAllCodes(String dataFile) {
 		init();
 		loadYmlData(dataFile);
 		genGradle();
