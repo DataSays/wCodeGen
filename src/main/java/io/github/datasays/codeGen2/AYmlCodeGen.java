@@ -15,6 +15,8 @@ public abstract class AYmlCodeGen {
 	protected NutMap props = null;
 	//gen code root dir
 	protected String workDir = null;
+	//gen profile
+	protected String[] profiles = null;
 	//gen type
 	protected String genType = null;
 
@@ -34,6 +36,9 @@ public abstract class AYmlCodeGen {
 			//gen type
 			genType = data.getString("GenType", "gradle");
 			model.put("GenType", genType);
+			//gen profile
+			profiles = data.getArray("Profile", String.class);
+			model.put("Profile", profiles);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

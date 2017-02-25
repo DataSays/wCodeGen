@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by watano on 2017/2/24.
@@ -69,6 +73,31 @@ public class GradleGen extends FtlCodeGen2 {
 				graph = "%% "+data.getString("project")+"\ngraph LR\n"+graph;
 				//FileUtil.writeString(workDir + "/project.mmd", graph);
 				codeGenHelper.writeFile(workDir + "/project.md");
+
+				//gen settings.gradle
+				codeGenHelper.init();
+				if(profiles != null && profiles.length>0) {
+					NutMap depInfo = new NutMap();
+					for (String subProjectName : subProjects.keySet()) {
+						NutMap subProject = subProjects.getAs(subProjectName, NutMap.class);
+						for (String dep : subProject.getList("deps", String.class)) {
+							dep = dep.trim();
+							if (dep.startsWith("compile project(")) {
+								dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
+								graph += subProjectName + "-->" + dep + "[" + dep + "]\n";
+								depInfo.addv(subProjectName, dep);
+							}
+						}
+					}
+					Set<String> lstDeps = new HashSet<>();
+					for(String project:profiles){
+						lstDeps = addAllDeps(lstDeps, depInfo, project);
+					}
+					for(String dep:lstDeps){
+						codeGenHelper.appendln("include ':"+dep+"'");
+					}
+					codeGenHelper.writeFile(workDir + "/settings.gradle");
+				}
 			} else {
 				fmHelper.process(genType + ".ftl", model);
 				formatGradle(workDir + "/build.gradle");
@@ -76,6 +105,26 @@ public class GradleGen extends FtlCodeGen2 {
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
+	}
+
+	public Set<String> addAllDeps(Set<String> lstDeps, NutMap depInfo, String project){
+		lstDeps.add(project);
+		List<String> deps = null;
+		Object o = depInfo.get(project);
+		if(o instanceof List){
+			deps = depInfo.getList(project, String.class);
+		}else if(o != null){
+			deps = new ArrayList<>();
+			deps.add(o.toString());
+		}else{
+			deps = new ArrayList<>();
+		}
+		for(String depName: deps){
+			if(!lstDeps.contains(depName)){
+				addAllDeps(lstDeps, depInfo, depName);
+			}
+		}
+		return lstDeps;
 	}
 
 	public static void formatGradle(String file) {
