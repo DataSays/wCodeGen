@@ -32,8 +32,10 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 			}
 			File outFile = new File(workDir+out);
 			if(out.endsWith("/") || out.endsWith("\\")){
-				FileUtil.mkdirs(outFile);
-				LOG.info("mkdirs-->" + outFile.getAbsolutePath());
+				if(!outFile.exists()){
+					FileUtil.mkdirs(outFile);
+					LOG.info("mkdirs-->" + outFile.getAbsolutePath());
+				}
 			}else {
 				//render body
 				StringWriter sw = new StringWriter();

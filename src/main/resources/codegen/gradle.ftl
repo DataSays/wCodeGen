@@ -115,15 +115,15 @@
 </#macro>
 
 <#----------------------------------------------------------------------------------------------------->
-<#-- 生成默认目录-->
-<#if data.plugins?seq_contains('java')>
-	<@f.writeFtl out="/src/main/java/" />
-	<@f.writeFtl out="/src/main/resources/" />
-	<@f.writeFtl out="/src/test/java/" />
-	<@f.writeFtl out="/src/test/resources/" />
-</#if>
 <#-- 生成主项目-->
 <#if type=='mainProject'>
+	<#-- 生成默认目录-->
+	<#if data.plugins?seq_contains('java')>
+		<@f.writeFtl out="/src/main/java/" />
+		<@f.writeFtl out="/src/main/resources/" />
+		<@f.writeFtl out="/src/test/java/" />
+		<@f.writeFtl out="/src/test/resources/" />
+	</#if>
 	<@f.writeFtl out="/build.gradle" comment='gen main project'>
 		<@genCommon cfg=data />
 		<@repositories />
@@ -139,6 +139,13 @@
 		</#list>
 	</@f.writeFtl>
 <#elseif type=='subProject'>
+	<#-- 生成默认目录-->
+	<#if data.plugins?seq_contains('java')>
+		<@f.writeFtl out="/${subProjectName}/src/main/java/" />
+		<@f.writeFtl out="/${subProjectName}/src/main/resources/" />
+		<@f.writeFtl out="/${subProjectName}/src/test/java/" />
+		<@f.writeFtl out="/${subProjectName}/src/test/resources/" />
+	</#if>
 	<#assign subProject=data.subProjects[subProjectName] />
 	<#assign subProject=subProject+{'project': subProjectName, 'group':data.group} />
 	<@f.writeFtl out="/${subProjectName}/build.gradle" comment='gen sub project:'+subProjectName>
@@ -150,6 +157,13 @@
 		${subProject.ExtCodes!''}
 	</@f.writeFtl>
 <#else>
+	<#-- 生成默认目录-->
+	<#if data.plugins?seq_contains('java')>
+		<@f.writeFtl out="/src/main/java/" />
+		<@f.writeFtl out="/src/main/resources/" />
+		<@f.writeFtl out="/src/test/java/" />
+		<@f.writeFtl out="/src/test/resources/" />
+	</#if>
 	<@f.writeFtl out="/build.gradle" comment='gen single project'>
 		<@genCommon cfg=data />
 		<@repositories />
