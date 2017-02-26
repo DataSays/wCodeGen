@@ -1,20 +1,11 @@
-props:
-    slf4j: 1.7.22
-    retrofit2: 2.1.0
-    jodd: 3.8.1
-    gson: 2.8.0
-    okhttp: 3.5.0
-    okio: 1.11.0
-    springboot: 1.4.2.RELEASE
-    #maven-publish: nebula.maven-publish' version '4.9.1
-    maven-publish: maven-publish
-    bintray: com.jfrog.bintray' version '1.7.3
-    ben-manes: 0.13.0
-    plugin-boot: 1.4.2.RELEASE
+WorkDir: .
+GenType: gradle
+Profile: []
+props: {}
 group: io.github.datasays
 project: wCodeGen
 version: "1.0"
-plugins: [java,eclipse,idea,maven,signing,"${maven-publish}","${bintray}","com.github.ben-manes.versions' version '${ben-manes}"]
+plugins: [java,eclipse,idea,maven,signing,"maven-publish","com.jfrog.bintray' version '1.7.3","com.github.ben-manes.versions' version '0.13.0"]
 description: DataSays wCodeGen
 applyFrom: ./bintray.gradle
 deps:
