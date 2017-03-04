@@ -1,8 +1,9 @@
 package io.github.datasays.codeGen2;
 
+import io.github.datasays.codeGen2.model.GradleProject;
 import io.github.datasays.util.CodeGenHelper;
+import io.github.datasays.util.WMap;
 import jodd.io.FileUtil;
-import org.nutz.lang.util.NutMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * version: string
+ * archiveName: string
+ * description: string
+ * applyFrom: string
+ * plugins: [string...]
+ * deps: [string...]
+ * dependencyManagement: [string...]
+ * fatJar: string
+ * GradleJavaTask: [string mainCls, String workingDir, String args]
+ * ExtCodes: string
+ *
  * Created by watano on 2017/2/24.
  */
 public class GradleGen extends FtlCodeGen2 {
@@ -28,12 +40,16 @@ public class GradleGen extends FtlCodeGen2 {
 		codeGenHelper.init();
 	}
 
+	private void gen(GradleProject project){
+
+	}
+
 	public void gen() {
 		try {
 			if (data.has("subProjects")) {
 				//gen main project file
 				model.setv("type", "mainProject");
-				NutMap subProjects = data.getAs("subProjects", NutMap.class);
+				WMap subProjects = data.map("subProjects");
 				fmHelper.process(genType + ".ftl", model);
 				formatGradle(workDir + "/build.gradle");
 
@@ -52,12 +68,12 @@ public class GradleGen extends FtlCodeGen2 {
 				codeGenHelper.appendln("");
 				String graph = "";//data.getString("project")+ "["+data.getString("description")+"]\n";
 				for (String subProjectName : subProjects.keySet()) {
-					NutMap subProject = subProjects.getAs(subProjectName, NutMap.class);
+					WMap subProject = subProjects.map(subProjectName);
 					graph += subProjectName+ "["+subProjectName+"]\n";
 					codeGenHelper.appendln("## "+data.getString("group")+":"+subProjectName+":"+subProject.getString("version", data.getString("version")));
 					codeGenHelper.appendln(""+subProject.getString("description"));
 					codeGenHelper.appendln("");
-					for(String dep: subProject.getList("deps", String.class)){
+					for(String dep: subProject.strings("deps")){
 						dep = dep.trim();
 						if(dep.startsWith("compile project(")){
 							dep = dep.substring("compile project(".length()+2, dep.length()-2);
@@ -77,10 +93,10 @@ public class GradleGen extends FtlCodeGen2 {
 				//gen settings.gradle
 				codeGenHelper.init();
 				if(profiles != null && profiles.length>0) {
-					NutMap depInfo = new NutMap();
+					WMap depInfo = new WMap();
 					for (String subProjectName : subProjects.keySet()) {
-						NutMap subProject = subProjects.getAs(subProjectName, NutMap.class);
-						for (String dep : subProject.getList("deps", String.class)) {
+						WMap subProject = subProjects.map(subProjectName);
+						for (String dep : subProject.strings("deps")) {
 							dep = dep.trim();
 							if (dep.startsWith("compile project(")) {
 								dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
@@ -107,7 +123,7 @@ public class GradleGen extends FtlCodeGen2 {
 		}
 	}
 
-	public Set<String> addAllDeps(Set<String> lstDeps, NutMap depInfo, String project){
+	public Set<String> addAllDeps(Set<String> lstDeps, WMap depInfo, String project){
 		lstDeps.add(project);
 		List<String> deps = null;
 		Object o = depInfo.get(project);

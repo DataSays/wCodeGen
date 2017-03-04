@@ -1,7 +1,7 @@
 package io.github.datasays.codeGen2;
 
+import io.github.datasays.util.WMap;
 import io.github.datasays.util.YamlUtil;
-import org.nutz.lang.util.NutMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AYmlCodeGen {
 	private static final Logger LOG = LoggerFactory.getLogger(AYmlCodeGen.class);
-	protected NutMap model = null;
-	protected NutMap data = null;
-	protected NutMap props = null;
+	protected WMap model = null;
+	protected WMap data = null;
+	protected WMap props = null;
 	//gen code root dir
 	protected String workDir = null;
 	//gen profile
@@ -21,7 +21,7 @@ public abstract class AYmlCodeGen {
 	protected String genType = null;
 
 	public void init() {
-		model = new NutMap();
+		model = new WMap();
 	}
 
 	public void load(String dataFile) {
@@ -29,7 +29,7 @@ public abstract class AYmlCodeGen {
 			//load data yml files, the "props" is the local vars;
 			data = YamlUtil.evalYml(dataFile, "props");
 			model.setv("data", data);
-			props = data.getAs("props", NutMap.class);
+			props = data.map("props");
 			//gen code root dir
 			workDir = data.getString("WorkDir", ".");
 			model.put("WorkDir", workDir);

@@ -1,14 +1,15 @@
 package io.github.datasays.util;
 
-import jodd.util.StringUtil;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by watano on 2017/2/7.
  */
 public class YmlGenHelper extends CodeGenHelper {
 	@Override
-	protected String indent() {
-		return StringUtil.repeat("  ", indent);
+	public String indentStr() {
+		return "  ";
 	}
 
 	private String val(Object value) {
@@ -24,18 +25,31 @@ public class YmlGenHelper extends CodeGenHelper {
 		return this;
 	}
 
+	public YmlGenHelper setNotNull(String key, Object value) {
+		if (value != null) {
+			appendln(key(key) + ": " + val(value));
+		}
+		return this;
+	}
+
 	public YmlGenHelper inlineList(String key, Object... values) {
-		append(key(key) + ": [");
+		appendln(key(key) + ": " + getInlineLst(values));
+		return this;
+	}
+
+	public String getInlineLst(Object... values) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
 		int i = 0;
 		for (Object v : values) {
-			append(val(v));
+			sb.append(val(v));
 			if (i < values.length - 1) {
-				append(", ");
+				sb.append(", ");
 			}
 			i++;
 		}
-		appendln("]");
-		return this;
+		sb.append("]");
+		return sb.toString();
 	}
 
 	public YmlGenHelper inlineMap(String key, Object... kvs) {
@@ -84,5 +98,22 @@ public class YmlGenHelper extends CodeGenHelper {
 			appendln("");
 		}
 		return this;
+	}
+
+	public YmlGenHelper addSetData(String key, Set<?> data) {
+		beginLst(key);
+		data.forEach(o -> {
+			addLst(o.toString());
+		});
+		endLst();
+		return this;
+	}
+
+	public YmlGenHelper addSetData(String key, List<?> data) {
+		return addSetData(key, WMap.convert(data));
+	}
+
+	public YmlGenHelper addSetData2(String key, Object... data) {
+		return addSetData(key, WMap.convert(data));
 	}
 }

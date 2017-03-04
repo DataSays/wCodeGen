@@ -60,7 +60,14 @@ public class CodeGenHelper {
 	}
 
 	protected String indent() {
-		return StringUtil.repeat("\t", indent);
+		if (indent <= 0) {
+			return "";
+		}
+		return StringUtil.repeat(indentStr(), indent);
+	}
+
+	public String indentStr(){
+		return "\t";
 	}
 
 	public String getCode() {

@@ -2,26 +2,11 @@ plugins {
 	id 'java'
 	id 'eclipse'
 	id 'idea'
-	id 'maven'
-	id 'signing'
-	id 'maven-publish'
-	id 'com.jfrog.bintray' version '1.7.3'
-	id 'com.github.ben-manes.versions' version '0.13.0'
 }
 
 group = 'io.github.datasays'
 version = '1.0'
 description = """DataSays wCodeGen"""
-apply from: './bintray.gradle'
-
-dependencies {
-	compile 'io.github.datasays:wUtil:1.1'
-	compile 'org.jodd:jodd-core:3.8.1'
-	compile 'org.freemarker:freemarker:2.3.23'
-	compile 'org.nutz:nutz:1.r.60'
-	compile 'org.yaml:snakeyaml:1.17'
-	testCompile 'junit:junit:4.12'
-}
 
 repositories {
 	mavenLocal()
@@ -31,25 +16,18 @@ repositories {
 	jcenter()
 	//mavenCentral()
 }
-idea{
-	project {
-		languageLevel = '1.8'
-		ipr {
-			withXml {
-				provider -> provider.node.component.find { it.@name == 'VcsDirectoryMappings' }.mapping.@vcs = 'Git'
-			}
-		}
-	}
-	module {
-		inheritOutputDirs = false
-		outputDir = file("$buildDir/classes/main/")
-		testOutputDir = file("$buildDir/classes/test/")
-	}
+
+dependencies {
+	compile 'io.github.datasays:wUtil:1.1'
+	compile 'org.freemarker:freemarker:2.3.23'
+	compile 'org.nutz:nutz:1.r.60'
+	compile 'org.yaml:snakeyaml:1.17'
+	testCompile 'junit:junit:4.12'
 }
+
 jar {
 	baseName = 'wCodeGen'
 	version = '1.0'
-
 }
 
 sourceCompatibility = 1.8
@@ -63,8 +41,8 @@ tasks.withType(JavaCompile) {
 task fatJar(type: Jar) {
 	manifest {
 		attributes 'Implementation-Title': 'DataSays wCodeGen',
-		'Implementation-Version': version,
-		'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
+				'Implementation-Version': version,
+				'Main-Class': 'io.github.datasays.codeGen2.FtlCodeGen2'
 	}
 
 	baseName = project.name + '-all'
@@ -75,7 +53,3 @@ task fatJar(type: Jar) {
 	}
 	with jar
 }
-configurations {
-	published
-}
-
