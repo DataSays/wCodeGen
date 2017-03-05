@@ -4,6 +4,7 @@ import io.github.datasays.codeGen2.model.GradleProject;
 import io.github.datasays.util.WMap;
 import io.github.datasays.util.YamlUtil;
 import io.github.datasays.util.YmlGenHelper;
+import jodd.util.ArraysUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,14 +14,10 @@ import org.slf4j.LoggerFactory;
 public class ProjectGen extends AYmlCodeGen {
 	private static final Logger LOG = LoggerFactory.getLogger(ProjectGen.class);
 	private YmlGenHelper gradleGen = new YmlGenHelper();
-	private YmlGenHelper configGen = new YmlGenHelper();
-	private YmlGenHelper dockerGen = new YmlGenHelper();
 
 	public void init() {
 		super.init();
 		gradleGen.init();
-		configGen.init();
-		dockerGen.init();
 	}
 
 	@Override
@@ -37,6 +34,8 @@ public class ProjectGen extends AYmlCodeGen {
 			if (data.has("subProjects")) {
 				gradleGen.beginMap("subProjects");
 				WMap subProjects = data.getAs("subProjects", WMap.class);
+				//gen docker-compose.yml
+				WMap dockerServices = new WMap();
 				for (String subProjectName : subProjects.keySet()) {
 					WMap subProject = subProjects.getAs(subProjectName, WMap.class);
 					props.setv("_SubProject_", subProjectName);
@@ -46,10 +45,10 @@ public class ProjectGen extends AYmlCodeGen {
 					String[] thisComponents = subProject.getArray("components", String.class, new String[]{});
 					WMap componetData = new WMap();
 					for (String componentName : thisComponents) {
-						WMap component = null;
+						WMap component;
 						if (componentName.startsWith(":")) {
 							component = subProjects.getAs(componentName.substring(1), WMap.class);
-							component.put("deps", new String[]{"compile project(':"+componentName.substring(1)+"')"});
+							component.put("deps", new String[]{"compile project(':" + componentName.substring(1) + "')"});
 						} else {
 							component = allComponents.getAs(componentName, WMap.class);
 						}
@@ -77,10 +76,23 @@ public class ProjectGen extends AYmlCodeGen {
 					gradleGen.beginMap(subProjectName);
 					subProjectData.write(gradleGen);
 					gradleGen.endMap();
+
+					//gen config for sub projects
+					if (ArraysUtil.contains(thisComponents, "springBoot")) {
+						YamlUtil.write(componetData.map("config"), workDir + "/" + subProjectName + "/src/main/resources/application.yml", 2);
+						YamlUtil.write(componetData.map("testConfig"), workDir + "/" + subProjectName + "/src/test/resources/application.yml", 2);
+
+						//gen docker-compose.yml
+						dockerServices.put(subProjectName, componetData.map("docker"));
+					}
 				}
 				gradleGen.endMap();
+				WMap dockerCompose = new WMap();
+				dockerCompose.put("version", "2");
+				dockerCompose.put("services", dockerServices);
+				YamlUtil.write(dockerCompose, "./docker-compose.yml");
 			}
-			gradleGen.writeFile("./gradle2.yml");
+			gradleGen.writeFile("./gradle.yml");
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

@@ -83,9 +83,9 @@ public class GradleGen extends FtlCodeGen2 {
 					}
 					codeGenHelper.appendln("");
 				}
-//				codeGenHelper.appendln("# 项目依赖");
-//				codeGenHelper.appendln("```graphLR");
-//				codeGenHelper.appendln(graph+"```");
+				codeGenHelper.appendln("# 项目依赖");
+				codeGenHelper.appendln("```graphLR");
+				codeGenHelper.appendln(graph+"```");
 				graph = "%% "+data.getString("project")+"\ngraph LR\n"+graph;
 				//FileUtil.writeString(workDir + "/project.mmd", graph);
 				codeGenHelper.writeFile(workDir + "/project.md");
