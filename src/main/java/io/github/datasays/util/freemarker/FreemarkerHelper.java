@@ -1,5 +1,17 @@
 package io.github.datasays.util.freemarker;
 
+import java.io.File;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
@@ -21,17 +33,6 @@ import freemarker.template.TemplateNumberModel;
 import freemarker.template.TemplateScalarModel;
 import jodd.io.FileUtil;
 import jodd.io.StreamUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
 public class FreemarkerHelper {
 	private static final String Encoding = "utf-8";
@@ -57,7 +58,7 @@ public class FreemarkerHelper {
 				for (File f : dirs) {
 					tls.add(new FileTemplateLoader(f));
 				}
-				MultiTemplateLoader mtl = new MultiTemplateLoader(tls.toArray(new TemplateLoader[]{}));
+				MultiTemplateLoader mtl = new MultiTemplateLoader(tls.toArray(new TemplateLoader[] {}));
 				cfg.setTemplateLoader(mtl);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
@@ -65,10 +66,9 @@ public class FreemarkerHelper {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static void setVar(String varName, Object data, Environment env) {
-		if (data == null) {
-			return;
-		}
+		if (data == null) { return; }
 		if (env == null) {
 			env = Environment.getCurrentEnvironment();
 		}
@@ -103,18 +103,14 @@ public class FreemarkerHelper {
 				if (data == null) {
 					data = env.getGlobalVariable(varName);
 				}
-				if (data == null) {
-					return null;
-				}
+				if (data == null) { return null; }
 				if (data instanceof TemplateScalarModel) {
 					return ((TemplateScalarModel) data).getAsString();
 				} else if (data instanceof TemplateNumberModel) {
 					return ((TemplateNumberModel) data).getAsNumber();
 				} else if (data instanceof TemplateBooleanModel) {
 					return ((TemplateBooleanModel) data).getAsBoolean();
-				} else if (data instanceof TemplateDateModel) {
-					return ((TemplateDateModel) data).getAsDate();
-				}
+				} else if (data instanceof TemplateDateModel) { return ((TemplateDateModel) data).getAsDate(); }
 			} catch (TemplateModelException e) {
 				LOG.error(e.getMessage(), e);
 			}
@@ -140,7 +136,7 @@ public class FreemarkerHelper {
 					LOG.error(e.getMessage(), e);
 				}
 			}
-			MultiTemplateLoader mtl = new MultiTemplateLoader(tplLoaders.toArray(new TemplateLoader[]{}));
+			MultiTemplateLoader mtl = new MultiTemplateLoader(tplLoaders.toArray(new TemplateLoader[] {}));
 			cfg.setTemplateLoader(mtl);
 		}
 	}
@@ -149,7 +145,7 @@ public class FreemarkerHelper {
 		return cfg;
 	}
 
-	public String process(String ftlName, Map<String, Object> model){
+	public String process(String ftlName, Map<String, Object> model) {
 		StringWriter sw = new StringWriter();
 		this.process(ftlName, model, sw);
 		return sw.toString();
@@ -164,7 +160,7 @@ public class FreemarkerHelper {
 			}
 			tpl.process(model, out);
 		} catch (Exception e) {
-			if(out != null && out instanceof StringWriter){
+			if (out != null && out instanceof StringWriter) {
 				System.out.println(out.toString());
 			}
 			LOG.error(e.getMessage(), e);

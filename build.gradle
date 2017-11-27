@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'eclipse'
 	id 'idea'
+	id 'com.github.ben-manes.versions' version '0.17.0'
 }
 
 group = 'io.github.datasays'
@@ -19,9 +20,9 @@ repositories {
 
 dependencies {
 	compile 'io.github.datasays:wUtil:1.1'
-	compile 'org.freemarker:freemarker:2.3.23'
-	compile 'org.nutz:nutz:1.r.60'
-	compile 'org.yaml:snakeyaml:1.17'
+	compile 'org.freemarker:freemarker:2.3.27-incubating'
+	compile 'org.nutz:nutz:1.r.63'
+	compile 'org.yaml:snakeyaml:1.19'
 	testCompile 'junit:junit:4.12'
 }
 

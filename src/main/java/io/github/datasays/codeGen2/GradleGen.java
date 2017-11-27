@@ -1,17 +1,17 @@
 package io.github.datasays.codeGen2;
 
-import io.github.datasays.codeGen2.model.GradleProject;
-import io.github.datasays.util.CodeGenHelper;
-import io.github.datasays.util.WMap;
-import jodd.io.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.github.datasays.util.CodeGenHelper;
+import io.github.datasays.util.WMap;
+import jodd.io.FileUtil;
 
 /**
  * version: string
@@ -31,6 +31,7 @@ public class GradleGen extends FtlCodeGen2 {
 	private static final Logger LOG = LoggerFactory.getLogger(GradleGen.class);
 	private CodeGenHelper codeGenHelper = null;
 
+	@Override
 	public void init() {
 		super.init();
 		//init codeGenHelper
@@ -40,10 +41,7 @@ public class GradleGen extends FtlCodeGen2 {
 		codeGenHelper.init();
 	}
 
-	private void gen(GradleProject project){
-
-	}
-
+	@Override
 	public void gen() {
 		try {
 			if (data.has("subProjects")) {
@@ -63,36 +61,36 @@ public class GradleGen extends FtlCodeGen2 {
 
 				//gen project.md
 				codeGenHelper.init();
-				codeGenHelper.appendln("# "+data.getString("group")+":"+data.getString("project")+":"+data.getString("version"));
-				codeGenHelper.appendln(""+data.getString("description"));
+				codeGenHelper.appendln("# " + data.getString("group") + ":" + data.getString("project") + ":" + data.getString("version"));
+				codeGenHelper.appendln("" + data.getString("description"));
 				codeGenHelper.appendln("");
 				String graph = "";//data.getString("project")+ "["+data.getString("description")+"]\n";
 				for (String subProjectName : subProjects.keySet()) {
 					WMap subProject = subProjects.map(subProjectName);
-					graph += subProjectName+ "["+subProjectName+"]\n";
-					codeGenHelper.appendln("## "+data.getString("group")+":"+subProjectName+":"+subProject.getString("version", data.getString("version")));
-					codeGenHelper.appendln(""+subProject.getString("description"));
+					graph += subProjectName + "[" + subProjectName + "]\n";
+					codeGenHelper.appendln("## " + data.getString("group") + ":" + subProjectName + ":" + subProject.getString("version", data.getString("version")));
+					codeGenHelper.appendln("" + subProject.getString("description"));
 					codeGenHelper.appendln("");
-					for(String dep: subProject.strings("deps")){
+					for (String dep : subProject.strings("deps")) {
 						dep = dep.trim();
-						if(dep.startsWith("compile project(")){
-							dep = dep.substring("compile project(".length()+2, dep.length()-2);
-							graph += subProjectName+"-->"+dep+ "["+dep+"]\n";
+						if (dep.startsWith("compile project(")) {
+							dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
+							graph += subProjectName + "-->" + dep + "[" + dep + "]\n";
 						}
-						codeGenHelper.appendln("+ "+dep);
+						codeGenHelper.appendln("+ " + dep);
 					}
 					codeGenHelper.appendln("");
 				}
 				codeGenHelper.appendln("# 项目依赖");
 				codeGenHelper.appendln("```graphLR");
-				codeGenHelper.appendln(graph+"```");
-				graph = "%% "+data.getString("project")+"\ngraph LR\n"+graph;
+				codeGenHelper.appendln(graph + "```");
+				graph = "%% " + data.getString("project") + "\ngraph LR\n" + graph;
 				//FileUtil.writeString(workDir + "/project.mmd", graph);
 				codeGenHelper.writeFile(workDir + "/project.md");
 
 				//gen settings.gradle
 				codeGenHelper.init();
-				if(profiles != null && profiles.length>0) {
+				if (profiles != null && profiles.length > 0) {
 					WMap depInfo = new WMap();
 					for (String subProjectName : subProjects.keySet()) {
 						WMap subProject = subProjects.map(subProjectName);
@@ -106,11 +104,11 @@ public class GradleGen extends FtlCodeGen2 {
 						}
 					}
 					Set<String> lstDeps = new HashSet<>();
-					for(String project:profiles){
+					for (String project : profiles) {
 						lstDeps = addAllDeps(lstDeps, depInfo, project);
 					}
-					for(String dep:lstDeps){
-						codeGenHelper.appendln("include ':"+dep+"'");
+					for (String dep : lstDeps) {
+						codeGenHelper.appendln("include ':" + dep + "'");
 					}
 					codeGenHelper.writeFile(workDir + "/settings.gradle");
 				}
@@ -123,20 +121,20 @@ public class GradleGen extends FtlCodeGen2 {
 		}
 	}
 
-	public Set<String> addAllDeps(Set<String> lstDeps, WMap depInfo, String project){
+	public Set<String> addAllDeps(Set<String> lstDeps, WMap depInfo, String project) {
 		lstDeps.add(project);
 		List<String> deps = null;
 		Object o = depInfo.get(project);
-		if(o instanceof List){
+		if (o instanceof List) {
 			deps = depInfo.getList(project, String.class);
-		}else if(o != null){
+		} else if (o != null) {
 			deps = new ArrayList<>();
 			deps.add(o.toString());
-		}else{
+		} else {
 			deps = new ArrayList<>();
 		}
-		for(String depName: deps){
-			if(!lstDeps.contains(depName)){
+		for (String depName : deps) {
+			if (!lstDeps.contains(depName)) {
 				addAllDeps(lstDeps, depInfo, depName);
 			}
 		}
@@ -157,7 +155,7 @@ public class GradleGen extends FtlCodeGen2 {
 					}
 					countBlankLine++;
 					continue;
-				}else{
+				} else {
 					countBlankLine = 0;
 				}
 				//check indent

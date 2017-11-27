@@ -1,16 +1,17 @@
 package io.github.datasays.util;
 
-import jodd.io.FileUtil;
-import jodd.util.StringUtil;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
+import jodd.io.FileUtil;
+import jodd.util.StringUtil;
 
 /**
  * Created by watano on 2017/1/21.
@@ -18,10 +19,9 @@ import java.util.Map;
 public class YamlUtil {
 	private static final Logger LOG = LoggerFactory.getLogger(YamlUtil.class);
 
-	@SuppressWarnings("unchecked")
 	public static WMap load(String codes) {
 		Yaml yml = new Yaml();
-		Map<String, Object> data = (Map<String, Object>) yml.loadAs(codes, Map.class);
+		Map<String, Object> data = yml.loadAs(codes, Map.class);
 		return new WMap(data);
 	}
 
@@ -63,9 +63,7 @@ public class YamlUtil {
 
 	public static void write(WMap data, String file, int flowStyle) {
 		Yaml yml = new Yaml();
-		if (data == null) {
-			return;
-		}
+		if (data == null) { return; }
 		try {
 			File outFile = new File(file);
 			if (!outFile.exists()) {

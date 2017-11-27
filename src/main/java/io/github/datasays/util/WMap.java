@@ -1,20 +1,18 @@
 package io.github.datasays.util;
 
-import org.nutz.lang.util.NutMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.nutz.lang.util.NutMap;
+
 /**
  * Created by watano on 2017/3/4.
  */
 public class WMap extends NutMap {
-	private static final Logger LOG = LoggerFactory.getLogger(WMap.class);
+	private static final long serialVersionUID = 5477931944742985633L;
 
 	public WMap() {
 		super();
@@ -33,7 +31,7 @@ public class WMap extends NutMap {
 		for (Object v : this.getArray(key, Object.class)) {
 			strings.add(v.toString());
 		}
-		return strings.toArray(new String[]{});
+		return strings.toArray(new String[] {});
 	}
 
 	public String[] stringsNoDuplicate(String key) {
@@ -41,7 +39,7 @@ public class WMap extends NutMap {
 		for (Object v : this.getArray(key, Object.class)) {
 			strings.add(v.toString());
 		}
-		return strings.toArray(new String[]{});
+		return strings.toArray(new String[] {});
 	}
 
 	public WMap map(String key) {
@@ -58,11 +56,9 @@ public class WMap extends NutMap {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void addX(String key, Object value) {
-		if (value == null) {
-			return;
-		}
+		if (value == null) { return; }
 		Object currValue = get(key);
 		if (currValue == null) {
 			put(key, value);
@@ -78,7 +74,7 @@ public class WMap extends NutMap {
 			if (value instanceof List) {
 				lst.addAll((List) value);
 			} else if (value instanceof Object[]) {
-				for(Object o:(Object[])value){
+				for (Object o : (Object[]) value) {
 					lst.add(o);
 				}
 			} else {
@@ -91,7 +87,7 @@ public class WMap extends NutMap {
 		} else if (value instanceof Object[]) {
 			List<Object> all = new ArrayList<>();
 			all.add(currValue);
-			for(Object o:(Object[])value){
+			for (Object o : (Object[]) value) {
 				all.add(o);
 			}
 			put(key, all);
@@ -124,6 +120,4 @@ public class WMap extends NutMap {
 		}
 		return set;
 	}
-
-
 }

@@ -1,23 +1,23 @@
 package io.github.datasays.util;
 
-import jodd.io.FileUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import jodd.io.FileUtil;
 
 /**
  * Created by watano on 2017/3/4.
  */
 public class YamlUtilTest {
-	private static final Logger LOG = LoggerFactory.getLogger(YamlUtilTest.class);
 	private String codes = null;
 
 	@Before
@@ -100,5 +100,95 @@ public class YamlUtilTest {
 		assertEquals(4, client.keySet().size());
 		assertNotNull(client.get("server"));
 		assertNotNull(client.get("serviceUrl"));
+	}
+
+	@Test
+	public void parseDaFrameworkYml() {
+		String rootDir = "e:\\work\\DataAgg\\DAFramework\\";
+		String outDir = "e:\\work\\DataAgg\\DAFramework\\codegen\\DAFramework\\";
+		String[] allProjects = { "account", "api-gateway", "security", "service-center" };
+		for (String project : allProjects) {
+			try {
+				WMap props = new WMap();
+				props.put("ACCOUNT_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
+				props.put("CONFIG_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
+				props.put("MONGODB_PASSWORD", "YFzCAfocMInyJ5YaO805");
+
+				WMap projectData = new WMap();
+				WMap tmpData = null;
+				String cfgFile = null;
+				cfgFile = rootDir + project + "\\src\\main\\resources\\bootstrap.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				cfgFile = rootDir + project + "\\src\\main\\resources\\application.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				YamlUtil.write(projectData, outDir + project + ".yml", 2);
+				//test
+				cfgFile = rootDir + project + "\\src\\test\\resources\\bootstrap.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				cfgFile = rootDir + project + "\\src\\test\\resources\\application.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				YamlUtil.write(projectData, outDir + project + "-test.yml", 2);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Test
+	public void parsePiggyMetricsYml() {
+		String rootDir = "e:\\temp\\PiggyMetrics\\";
+		String outDir = "e:\\work\\DataAgg\\DAFramework\\codegen\\PiggyMetrics\\";
+		String[] allProjects = { "account-service", "notification-service", "registry", "auth-service", "statistics-service", "gateway" };
+		String configDir = rootDir + "config\\src\\main\\resources\\shared\\";
+		for (String project : allProjects) {
+			try {
+				WMap props = new WMap();
+				props.put("ACCOUNT_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
+				props.put("CONFIG_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
+				props.put("MONGODB_PASSWORD", "YFzCAfocMInyJ5YaO805");
+
+				WMap projectData = YamlUtil.evalYml(configDir + "application.yml", props);
+				WMap tmpData = YamlUtil.evalYml(configDir + project + ".yml", props);
+				projectData.addAll(tmpData);
+				String cfgFile = null;
+				cfgFile = rootDir + project + "\\src\\main\\resources\\bootstrap.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				cfgFile = rootDir + project + "\\src\\main\\resources\\application.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				YamlUtil.write(projectData, outDir + project + ".yml", 2);
+				//test
+				cfgFile = rootDir + project + "\\src\\test\\resources\\bootstrap.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				cfgFile = rootDir + project + "\\src\\test\\resources\\application.yml";
+				if (new File(cfgFile).exists()) {
+					tmpData = YamlUtil.evalYml(cfgFile, props);
+					projectData.addAll(tmpData);
+				}
+				YamlUtil.write(projectData, outDir + project + "-test.yml", 2);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
