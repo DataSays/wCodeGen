@@ -1,8 +1,11 @@
 package org.datasays.util.lang;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import jodd.util.StringUtil;
 
 public class MoneyUtil {
 	/**
@@ -13,7 +16,8 @@ public class MoneyUtil {
 	 * @return
 	 */
 	public static boolean equals(Double money1, Double money2) {
-		return (money1 == null && money2 == null) || (money1 != null && money2 != null && Math.abs(money1 - money2) < 0.001);
+		return (money1 == null && money2 == null)
+				|| (money1 != null && money2 != null && Math.abs(money1 - money2) < 0.001);
 	}
 
 	/**
@@ -72,5 +76,63 @@ public class MoneyUtil {
 		amounts.put(money1, quantity1);
 		amounts.put(money2, quantity2);
 		return MoneyUtil.getWeightedAverage(amounts);
+	}
+
+	/**
+	 * 金额格式化 逗号拼接
+	 *
+	 * @return
+	 */
+	public static String formatMoney(Object money, int bit) {
+		try {
+			if (money == null || money.toString() == "") {
+				money = 0.0;
+			}
+			StringBuffer formatStr = new StringBuffer("#,###,##0");
+			if (bit < 0) {
+				bit = 0;
+			}
+			if (bit > 0) {
+				formatStr.append(".");
+			}
+			for (int i = 0; i < bit; i++) {
+				formatStr.append("#");
+			}
+			if (parseDouble(money).compareTo(0.0) > 0) {
+				return numberFormat(parseDouble(money), formatStr.toString());
+			} else {
+				return "";
+			}
+		} catch (Exception e) {
+		}
+		return "";
+	}
+
+	public static Long parseLong(Object number) {
+		if (number != null && number instanceof Number) {
+			return ((Number) number).longValue();
+		} else if (number != null && number instanceof BigDecimal) {
+			return ((Number) number).longValue();
+		} else if (number != null && StringUtil.isNotBlank(number.toString())) {
+			return Long.parseLong(number.toString().trim());
+		}
+		return null;
+	}
+	
+	public static Double parseDouble(Object number) {
+		if (number != null && number instanceof Number) {
+			return ((Number) number).doubleValue();
+		} else if (number != null && number instanceof BigDecimal) {
+			return ((Number) number).doubleValue();
+		} else if (number != null && StringUtil.isNotBlank(number.toString())) {
+			return Double.parseDouble(number.toString().trim());
+		}
+		return null;
+	}
+
+	public static String numberFormat(Object object, String format) {
+		DecimalFormat myformat = new DecimalFormat();
+		myformat.applyPattern(format);
+		return myformat.format(object);
 	}
 }

@@ -1,19 +1,22 @@
 package org.datasays.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Iterator;
 import java.util.List;
 
 public abstract class WPageIterator<T> implements Iterator<T> {
-	private static final Logger LOG = LoggerFactory.getLogger(WPageIterator.class);
 	private WPage page;
 	private List<T> data = null;
 	private int dataIndex = 0;
+	private Object params = null;
 
 	public WPageIterator() {
 		super();
+	}
+
+	public WPageIterator(Object params, WPage page) {
+		super();
+		this.params = params;
+		reset(page);
 	}
 
 	public WPageIterator(WPage page) {
@@ -32,7 +35,6 @@ public abstract class WPageIterator<T> implements Iterator<T> {
 
 	@Override
 	public boolean hasNext() {
-		LOG.debug(page.toText());
 		return page != null && page.getTotal() != null && page.getTotal() > 0 && page.getFrom() + 1 <= page.getTotal();
 	}
 
@@ -54,6 +56,14 @@ public abstract class WPageIterator<T> implements Iterator<T> {
 	private void _search() {
 		doSearch();
 		dataIndex = 0;
+	}
+
+	public Object getParams() {
+		return params;
+	}
+
+	public void setParams(Object params) {
+		this.params = params;
 	}
 
 	public abstract void doSearch();

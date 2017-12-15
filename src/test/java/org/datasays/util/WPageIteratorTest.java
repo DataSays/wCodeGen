@@ -1,6 +1,13 @@
 package org.datasays.util;
 
-import org.datasays.util.lang.ValuePlus;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,31 +15,37 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.datasays.util.lang.ValuePlus;
 
 public class WPageIteratorTest {
 	private static final Logger LOG = LoggerFactory.getLogger(WPageIteratorTest.class);
 
 	@Before
-	public void setUp() throws Exception {
-	}
+	public void setUp() throws Exception {}
 
 	@After
-	public void tearDown() throws Exception {
-	}
+	public void tearDown() throws Exception {}
 
 	@Test
 	public void testWPage() {
 		WPage page = new WPage();
-		//100
-		int total = 100;
+		//pages
+		int total = 0;
 		page.setTotal(total);
+		assertEquals(0, page.getPages());
+		total = 1;
+		page.setTotal(total);
+		assertEquals(1, page.getPages());
+		total = 20;
+		page.setTotal(total);
+		assertEquals(1, page.getPages());
+		total = 21;
+		page.setTotal(total);
+		assertEquals(2, page.getPages());
+		//100
+		total = 100;
+		page.setTotal(total);
+		assertEquals(5, page.getPages());
 
 		page.setFrom(0);
 		assertEquals(1, page.getPageNo());
@@ -49,6 +62,7 @@ public class WPageIteratorTest {
 		page.setFrom(99);
 		assertEquals(5, page.getPageNo());
 		assertEquals(total, page.getTotal().intValue());
+
 		page.setFrom(100);
 		assertEquals(5, page.getPageNo());
 		assertEquals(total, page.getTotal().intValue());
@@ -56,6 +70,7 @@ public class WPageIteratorTest {
 		//101
 		total = 101;
 		page.setTotal(total);
+		assertEquals(6, page.getPages());
 
 		page.setFrom(0);
 		assertEquals(1, page.getPageNo());
@@ -76,6 +91,7 @@ public class WPageIteratorTest {
 		page.setFrom(100);
 		assertEquals(6, page.getPageNo());
 		assertEquals(total, page.getTotal().intValue());
+
 		page.setFrom(101);
 		assertEquals(6, page.getPageNo());
 		assertEquals(total, page.getTotal().intValue());
@@ -94,62 +110,76 @@ public class WPageIteratorTest {
 			}
 		};
 		assertTrue(wpIterator.hasNext());//0
-		assertEquals(1, wpIterator.getPage().getPageNo());
+		assertEquals(0, page.getFrom());
+		assertEquals(1, page.getPageNo());
 		assertEquals(1, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//1
-		assertEquals(1, wpIterator.getPage().getPageNo());
+		assertEquals(1, page.getFrom());
+		assertEquals(1, page.getPageNo());
 		assertEquals(2, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//2
-		assertEquals(1, wpIterator.getPage().getPageNo());
+		assertEquals(2, page.getFrom());
+		assertEquals(1, page.getPageNo());
 		assertEquals(3, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//3
-		assertEquals(2, wpIterator.getPage().getPageNo());
+		assertEquals(3, page.getFrom());
+		assertEquals(2, page.getPageNo());
 		assertEquals(1, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//4
-		assertEquals(2, wpIterator.getPage().getPageNo());
+		assertEquals(4, page.getFrom());
+		assertEquals(2, page.getPageNo());
 		assertEquals(2, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//5
-		assertEquals(2, wpIterator.getPage().getPageNo());
+		assertEquals(5, page.getFrom());
+		assertEquals(2, page.getPageNo());
 		assertEquals(3, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//6
-		assertEquals(3, wpIterator.getPage().getPageNo());
+		assertEquals(6, page.getFrom());
+		assertEquals(3, page.getPageNo());
 		assertEquals(1, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//7
-		assertEquals(3, wpIterator.getPage().getPageNo());
+		assertEquals(7, page.getFrom());
+		assertEquals(3, page.getPageNo());
 		assertEquals(2, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//8
-		assertEquals(3, wpIterator.getPage().getPageNo());
+		assertEquals(8, page.getFrom());
+		assertEquals(3, page.getPageNo());
 		assertEquals(3, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertTrue(wpIterator.hasNext());//9
-		assertEquals(4, wpIterator.getPage().getPageNo());
+		assertEquals(9, page.getFrom());
+		assertEquals(4, page.getPageNo());
 		assertEquals(1, wpIterator.next().intValue());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertFalse(wpIterator.hasNext());//10
-		assertEquals(4, wpIterator.getPage().getPageNo());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(10, page.getFrom());
+		assertEquals(4, page.getPageNo());
+		assertEquals(2, wpIterator.next().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		assertFalse(wpIterator.hasNext());//11
-		assertEquals(4, wpIterator.getPage().getPageNo());
-		assertEquals(total, wpIterator.getPage().getTotal().intValue());
+		assertEquals(11, page.getFrom());
+		assertEquals(4, page.getPageNo());
+		assertEquals(3, wpIterator.next().intValue());
+		assertEquals(total, page.getTotal().intValue());
 
 		try {
 			page.setFrom(0);
@@ -164,9 +194,9 @@ public class WPageIteratorTest {
 
 			int index = 0;
 			while (wpIterator.hasNext()) {
-				assertEquals(index++, wpIterator.getPage().getFrom());
+				assertEquals(index++, page.getFrom());
 				Integer item = wpIterator.next();
-				LOG.info("---------------------------------------------" + item + "->" + wpIterator.getPage().toText());
+				LOG.info("---------------------------------------------" + item + "->" + wpIterator.getPage());
 				assertNotNull(item);
 				if (index % 3 == 1) {
 					assertEquals(1, item.intValue());
@@ -177,8 +207,8 @@ public class WPageIteratorTest {
 				} else {
 					fail("OMG!");
 				}
-				assertEquals(index, wpIterator.getPage().getFrom());
-				assertEquals(total2, wpIterator.getPage().getTotal().intValue());
+				assertEquals(index, page.getFrom());
+				assertEquals(total2, page.getTotal().intValue());
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
@@ -186,9 +216,9 @@ public class WPageIteratorTest {
 		}
 	}
 
-	private void assertSearch(int total, int pageSize){
+	private void assertSearch(int total, int pageSize) {
 		Integer[] data = new Integer[total];
-		for(int i=0; i<total;i++){
+		for (int i = 0; i < total; i++) {
 			data[i] = i;
 		}
 		WPage page = new WPage();
@@ -196,11 +226,31 @@ public class WPageIteratorTest {
 		WPageIterator<Integer> wpIterator = new WPageIterator<Integer>(page) {
 			@Override
 			public void doSearch() {
-				update(Arrays.asList(Arrays.copyOfRange(data, page.getFrom(), page.getFrom()+page.getSize())), total);
+				update(Arrays.asList(Arrays.copyOfRange(data, page.getFrom(), page.getFrom() + page.getSize())), total);
 			}
 		};
-		int i=0;
-		while(wpIterator.hasNext()){
+		int i = 0;
+		while (wpIterator.hasNext()) {
+			Assert.assertEquals(i, page.getFrom());
+			if (i == 0) {
+				Assert.assertEquals(1, page.getPageNo());
+			}
+			if (i == 19) {
+				Assert.assertEquals(1, page.getPageNo());
+			}
+			if (i == 20) {
+				Assert.assertEquals(2, page.getPageNo());
+			}
+			if (i == 21) {
+				Assert.assertEquals(2, page.getPageNo());
+			}
+			if (i == 399) {
+				Assert.assertEquals(20, page.getPageNo());
+			}
+
+			if (i == total) {
+				fail("超出");
+			}
 			Integer item = wpIterator.next();
 			Assert.assertEquals(i, item.intValue());
 			i++;

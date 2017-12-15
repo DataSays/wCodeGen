@@ -147,9 +147,7 @@ public class VcfUtils {
 		String nextLine;
 		do {
 			line = reader.readLine();
-			if (line == null) {
-				return null;
-			}
+			if (line == null) { return null; }
 		} while (line.length() == 0);
 		while (line.endsWith("=")) {
 			line = line.substring(0, line.length() - 1);
@@ -170,9 +168,7 @@ public class VcfUtils {
 	 * 解码
 	 */
 	public static String qpDecoding(String str) {
-		if (str == null) {
-			return "";
-		}
+		if (str == null) { return ""; }
 		try {
 			str = str.replaceAll("=\n", "");
 			byte[] bytes = str.getBytes("US-ASCII");
@@ -233,7 +229,7 @@ public class VcfUtils {
 				} catch (UnsupportedEncodingException e) {
 					e.printStackTrace();
 				}
-				if (buf.length == 3) {
+				if (buf != null && buf.length == 3) {
 					for (int j = 0; j < 3; j++) {
 						String s16 = String.valueOf(Integer.toHexString(buf[j]));
 						// 抽取中文字符16进制字节的后两位,也就是=E8等号后面的两位,

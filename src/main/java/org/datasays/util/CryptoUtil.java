@@ -1,13 +1,14 @@
 package org.datasays.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CryptoUtil {
 	private static final String Algorithm = "DESede";// DES,DESede,Blowfish
@@ -19,9 +20,9 @@ public class CryptoUtil {
 	}
 
 	private static byte[] getKey() throws Exception {
-// KeyGenerator keygen = KeyGenerator.getInstance(Algorithm);
-// SecretKey deskey = keygen.generateKey();
-// deskey.getEncoded();
+		// KeyGenerator keygen = KeyGenerator.getInstance(Algorithm);
+		// SecretKey deskey = keygen.generateKey();
+		// deskey.getEncoded();
 		byte[] key = hex2byte("4F9D3497E379AE6E54E004DF15A8DFC27CCD97AE756B9B9D");
 		LOG.debug("generate Key:" + byte2hex(key));
 		return key;
@@ -96,9 +97,7 @@ public class CryptoUtil {
 	public static String encodeLongToString(long i) {
 		if (i == 0) {
 			return "0";
-		} else if (i < 0) {
-			throw new IllegalArgumentException();
-		}
+		} else if (i < 0) { throw new IllegalArgumentException(); }
 		StringBuffer buffer = new StringBuffer();
 		while (i > 0) {
 			buffer.insert(0, encodeIntToChar((int) (i % 62)));

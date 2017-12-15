@@ -2,17 +2,27 @@ WorkDir: .
 GenType: gradle
 Profile: []
 props: {}
-group: io.github.datasays
+group: org.dataagg
 project: wCodeGen
 version: "1.0"
 plugins: [java,eclipse,idea,maven,signing,"maven-publish","com.jfrog.bintray' version '1.7.3","com.github.ben-manes.versions' version '0.13.0"]
-description: DataSays wCodeGen
+description: DataAgg wCodeGen
 applyFrom: ./bintray.gradle
 deps:
-  - compile 'io.github.datasays:wUtil:1.1'
+  - compile 'org.slf4j:slf4j-api:1.7.22'
+  - compile 'org.slf4j:slf4j-log4j12:1.7.22'
+  - compile 'org.slf4j:jcl-over-slf4j:1.7.22'
+  - compile 'org.slf4j:jul-to-slf4j:1.7.22'
   - compile 'org.jodd:jodd-core:3.8.1'
-  - compile 'org.freemarker:freemarker:2.3.23'
-  - compile 'org.nutz:nutz:1.r.60'
-  - compile 'org.yaml:snakeyaml:1.17'
+  - compile 'org.jodd:jodd-bean:3.8.1'
+  - compile 'org.jodd:jodd-props:3.8.1'
+  - compile 'com.google.code.gson:gson:2.8.0'
+  - compile 'com.squareup.okio:okio:1.11.0'
+  - compile 'com.squareup.okhttp3:okhttp:3.5.0'
+  - compile 'com.squareup.retrofit2:retrofit:2.1.0'
+  - compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+  - compile 'org.freemarker:freemarker:2.3.27-incubating'
+  - compile 'org.nutz:nutz:1.r.63'
+  - compile 'org.yaml:snakeyaml:1.19'
   - testCompile 'junit:junit:4.12'
-fatJar: io.github.datasays.codeGen2.FtlCodeGen2
+fatJar: org.dataagg.codeGen2.FtlCodeGen2
