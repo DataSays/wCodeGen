@@ -4,6 +4,7 @@ import jodd.util.StringUtil;
 
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -104,6 +105,22 @@ public class TextUtils {
 
 	public static String formatTime(Date date) {
 		return formatDate(date, DisplayTimeFormat);
+	}
+
+	public static String formatMoney(Object money, int bit) {
+		try {
+			if (money == null || money.toString() == "") {
+				money = 0.0;
+			}
+			String format = "#,###,##0";
+			if (bit > 0) {
+				format += "." + repeat("#", bit);
+			}
+			DecimalFormat df = new DecimalFormat();
+			df.applyPattern(format);
+			return df.format(money);
+		} catch (Exception e) {}
+		return "";
 	}
 
 	public static String weekText(Date date) {
@@ -637,20 +654,21 @@ public class TextUtils {
 		}
 		return obj.toString();
 	}
-	
+
 	public static String genCode(String no) {
 		return TextUtils.genCode(no, 3);
 	}
-	public static String genCode(String no,int digits) {
+
+	public static String genCode(String no, int digits) {
 		String index = "1";
-		if(StringUtil.isNotBlank(no)) {
-			index = StringUtil.substring(no, no.length()-digits, no.length());
-			index = String.valueOf(Integer.parseInt(index)+1);
+		if (StringUtil.isNotBlank(no)) {
+			index = StringUtil.substring(no, no.length() - digits, no.length());
+			index = String.valueOf(Integer.parseInt(index) + 1);
 		}
-		if(index.length() < digits) {
+		if (index.length() < digits) {
 			int l = digits - index.length();
 			for (int i = 0; i < l; i++) {
-				index = "0"+index;
+				index = "0" + index;
 			}
 		}
 		return index;
