@@ -4,20 +4,13 @@
 		<file>./logs/Server.log</file>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
-			<charset>UTF-8</charset><!--此处设置字符集-->
-		</encoder>
-	</appender>
-	<appender name="FILEAUDIT" class="ch.qos.logback.core.FileAppender">
-		<file>./logs/ServerAudit.log</file>
-		<encoder>
-			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
-			<charset>UTF-8</charset><!--此处设置字符集-->
+			<charset>UTF-8</charset>
 		</encoder>
 	</appender>
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%d{mm:ss.SSS}-%-5level[%thread]%logger{36}:%line - %msg%n</pattern>
-			<charset>UTF-8</charset><!--此处设置字符集-->
+			<charset>UTF-8</charset>
 		</encoder>
 	</appender>
 	<root level="WARN,DEBUG">
@@ -26,9 +19,6 @@
 	</root>
 	<logger name="freemarker" level="WARN" />
 	<logger name="com.dataagg" level="INFO" />
-	<logger name="com.dataagg.psc.project" level="DEBUG">
-	    <appender-ref ref="FILEAUDIT"/> 
-	</logger> 
 	<logger name="com.dataagg.util.CacheHelper" level="DEBUG" />
 	<!-- <logger name="com.dataagg.config.CacheConfiguration" level="DEBUG" /> -->
 	<logger name="org.nutz.dao.impl.sql" level="DEBUG" />

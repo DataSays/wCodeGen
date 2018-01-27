@@ -106,6 +106,23 @@ public class TextUtils {
 		return formatDate(date, DisplayTimeFormat);
 	}
 
+	public static String weekText(Date date) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		String[] weekDays = { "周日", "周一", "周二", "周三", "周四", "周五", "周六" };
+		int w = c.get(Calendar.DAY_OF_WEEK) - 1;
+		if (w < 0) {
+			w = 0;
+		}
+		return weekDays[w];
+	}
+
+	public static String shortDay(Date date) {
+		String day = TextUtils.formatDate(date, "MM-dd");
+		day += "(" + TextUtils.weekText(date) + ")";
+		return day;
+	}
+
 	/**
 	 * 标准XMLSchema日期格式转换
 	 *

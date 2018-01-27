@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -41,7 +43,7 @@ public class SysToolkit {
 	public static boolean isSymbolicLink(String path) throws Exception {
 		BasicFileAttributes attrs = Files.readAttributes(FileSystems.getDefault().getPath(polishFilePath(path)), BasicFileAttributes.
 
-				class, LinkOption.NOFOLLOW_LINKS);
+		class, LinkOption.NOFOLLOW_LINKS);
 		return attrs.isSymbolicLink();
 	}
 
@@ -99,5 +101,10 @@ public class SysToolkit {
 				FileUtil.delete(f.getAbsolutePath(), new FileUtilParams().setContinueOnError(false));
 			}
 		}
+	}
+
+	public static String readFromClassPath(Object classLoader, String path) throws IOException {
+		InputStream inputStream = classLoader.getClass().getClassLoader().getResourceAsStream(path);
+		return new String(StreamUtil.readBytes(inputStream), "utf8");
 	}
 }

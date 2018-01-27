@@ -40,7 +40,7 @@ public abstract class ADefBase<I extends PropDef> implements PropSet<I> {
 	}
 
 	public String testJavaFile(String pkg, String name) {
-		return String.format("%s/%s.java", javaSrcPath(project, pkg), CodeGenHelper.capFirst(name));
+		return String.format("%s/%s.java", testJavaSrcPath(project, pkg), CodeGenHelper.capFirst(name));
 	}
 
 	public void common(String project, String pkg, String comments) {
