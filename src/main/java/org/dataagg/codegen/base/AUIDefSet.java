@@ -7,9 +7,8 @@ import java.util.Map;
 
 import org.dataagg.codegen.model.EntityDef;
 import org.dataagg.codegen.model.UIItemDef;
+import org.dataagg.util.WJsonExclued;
 import org.dataagg.util.props.PropDef;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jodd.util.StringUtil;
 
@@ -71,7 +70,7 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 	 * 从defs里解析分组的定义集合
 	 * @return
 	 */
-	@JsonIgnore
+	@WJsonExclued
 	public Map<String, List<UIItemDef>> getDefGroups() {
 		Map<String, List<UIItemDef>> defGroups = new Hashtable<>();
 		if (defs != null) {

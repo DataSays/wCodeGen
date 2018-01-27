@@ -2,9 +2,8 @@ package org.dataagg.util.props;
 
 import java.io.Serializable;
 
+import org.dataagg.util.WJsonExclued;
 import org.dataagg.util.collection.StrObj;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 属性定义
@@ -62,7 +61,7 @@ public class PropDef implements Serializable {
 	}
 
 	//属性值的数据类型
-	@JsonIgnore
+	@WJsonExclued
 	public Class<?> getTypeCls() {
 		return String.class;
 	}

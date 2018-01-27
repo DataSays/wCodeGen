@@ -20,6 +20,7 @@ public class LoadJsonMethod implements TemplateMethodModelEx {
 	private static final Logger LOG = LoggerFactory.getLogger(LoadJsonMethod.class);
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Object exec(List args) throws TemplateModelException {
 		if (args != null && args.size() >= 1) {
 			try {

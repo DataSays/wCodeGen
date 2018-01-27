@@ -17,6 +17,7 @@ public class LogMethod implements TemplateMethodModelEx {
 	private static final Logger LOG = LoggerFactory.getLogger(LogMethod.class);
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Object exec(List args) throws TemplateModelException {
 		if (args != null && args.size() > 0) {
 			LOG.info(args.get(0).toString());

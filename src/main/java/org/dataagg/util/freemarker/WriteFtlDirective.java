@@ -21,25 +21,26 @@ public class WriteFtlDirective implements TemplateDirectiveModel {
 	private static final Logger LOG = LoggerFactory.getLogger(WriteFtlDirective.class);
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public void execute(Environment env, Map params, TemplateModel[] loopVars, TemplateDirectiveBody body) throws TemplateException, IOException {
 		try {
 			String out = params.get("out").toString();
 			out = out.trim();
 			String workDir = ".";
 			Object workDirTmp = FreemarkerHelper.getVar("WorkDir", env);
-			if(workDirTmp != null){
+			if (workDirTmp != null) {
 				workDir = workDirTmp.toString();
 			}
-			File outFile = new File(workDir+out);
-			if(out.endsWith("/") || out.endsWith("\\")){
-				if(!outFile.exists()){
+			File outFile = new File(workDir + out);
+			if (out.endsWith("/") || out.endsWith("\\")) {
+				if (!outFile.exists()) {
 					FileUtil.mkdirs(outFile);
 					LOG.info("mkdirs-->" + outFile.getAbsolutePath());
 				}
-			}else {
+			} else {
 				//render body
 				StringWriter sw = new StringWriter();
-				if(body!= null){
+				if (body != null) {
 					body.render(sw);
 				}
 				String code = sw.toString();

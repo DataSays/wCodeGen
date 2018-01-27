@@ -9,9 +9,7 @@ import org.dataagg.util.WJsonUtils;
 import org.dataagg.util.collection.StrObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class UICodeGen {
 	private static final Logger LOG = LoggerFactory.getLogger(UICodeGen.class);
 	public String baseDir = "..\\..\\pscWeb\\src\\";

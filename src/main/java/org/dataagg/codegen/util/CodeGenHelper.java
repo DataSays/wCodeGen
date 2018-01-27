@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.dataagg.codegen.base.ACodeMerger;
 
 import jodd.io.FileUtil;
@@ -33,26 +30,23 @@ public class CodeGenHelper {
 		init();
 	}
 
-	@Nonnull
-	public static String capFirst(@Nonnull String field) {
+	public static String capFirst(String field) {
 		return field.substring(0, 1).toUpperCase() + field.substring(1);
 	}
 
-	@Nonnull
-	public static String uncapFirst(@Nonnull String field) {
+	public static String uncapFirst(String field) {
 		return field.substring(0, 1).toLowerCase() + field.substring(1);
 	}
 
-	public static void append(@Nonnull StringBuffer sb, @Nonnull String line, @Nullable Object... args) {
+	public static void append(StringBuffer sb, String line, Object... args) {
 		sb.append(String.format(line, args));
 	}
 
-	public static void appendln(@Nonnull StringBuffer sb, @Nonnull String line, @Nullable Object... args) {
+	public static void appendln(StringBuffer sb, String line, Object... args) {
 		sb.append(String.format(line + "%n", args));
 	}
 
-	@Nonnull
-	public static String joinPrefix(@Nonnull String prefix, @Nullable String... texts) {
+	public static String joinPrefix(String prefix, String... texts) {
 		String outText = "";
 		if (texts != null) {
 			for (String inter : texts) {
@@ -65,8 +59,7 @@ public class CodeGenHelper {
 		return outText;
 	}
 
-	@Nonnull
-	public static String joinSuffix(@Nonnull String suffix, @Nullable String... texts) {
+	public static String joinSuffix(String suffix, String... texts) {
 		String outText = "";
 		if (texts != null) {
 			for (String inter : texts) {
@@ -95,20 +88,17 @@ public class CodeGenHelper {
 		return tmpLines;
 	}
 
-	@Nonnull
 	public CodeGenHelper init() {
 		codeBuff = new StringBuffer();
 		return this;
 	}
 
-	@Nonnull
-	public CodeGenHelper encoding(@Nonnull String encoding) {
+	public CodeGenHelper encoding(String encoding) {
 		this.encoding = encoding;
 		return this;
 	}
 
-	@Nonnull
-	public CodeGenHelper appendLines(@Nullable String... lines) {
+	public CodeGenHelper appendLines(String... lines) {
 		if (lines != null) {
 			for (String line : lines) {
 				appendln("%s", line);
@@ -117,32 +107,27 @@ public class CodeGenHelper {
 		return this;
 	}
 
-	@Nonnull
-	public CodeGenHelper append(@Nonnull String line, @Nullable Object... args) {
+	public CodeGenHelper append(String line, Object... args) {
 		append(codeBuff, line, args);
 		return this;
 	}
 
-	@Nonnull
-	public CodeGenHelper appendln(@Nonnull String line, @Nullable Object... args) {
+	public CodeGenHelper appendln(String line, Object... args) {
 		appendln(codeBuff, line, args);
 		return this;
 	}
 
-	@Nonnull
-	public CodeGenHelper appendln2(@Nonnull String line, @Nullable Object... args) {
+	public CodeGenHelper appendln2(String line, Object... args) {
 		codeBuff.append(indent());
 		appendln(codeBuff, line, args);
 		return this;
 	}
 
-	@Nonnull
 	public CodeGenHelper beginIndent() {
 		indent++;
 		return this;
 	}
 
-	@Nonnull
 	public CodeGenHelper endIndent() {
 		indent--;
 		if (indent < 0) {

@@ -4,10 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.dataagg.codegen.base.AUIDefSet;
+import org.dataagg.util.WJsonExclued;
 import org.dataagg.util.props.PropDef;
-
-//##CodeMerger.import
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  *
@@ -127,7 +125,7 @@ public class UIFormDef extends AUIDefSet {
 	}
 
 	//是否是树形
-	@JsonIgnore
+	@WJsonExclued
 	public boolean isTree() {
 		return "true".equals(getCfg("isTree"));
 	}

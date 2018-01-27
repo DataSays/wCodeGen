@@ -3,9 +3,6 @@ package org.dataagg.codegen.util;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import jodd.util.StringUtil;
 
 public class JCoder extends CodeGenHelper {
@@ -19,8 +16,7 @@ public class JCoder extends CodeGenHelper {
 		imports = new HashSet<>();
 	}
 
-	@Nonnull
-	public static String fieldDef(@Nonnull String fieldType, @Nonnull String fieldName, @Nullable Object defaultVal) {
+	public static String fieldDef(String fieldType, String fieldName, Object defaultVal) {
 		if (fieldType.indexOf(".") > 0) {
 			fieldType = fieldType.substring(fieldType.lastIndexOf(".") + 1);
 		}
@@ -48,8 +44,7 @@ public class JCoder extends CodeGenHelper {
 		}
 	}
 
-	@Nonnull
-	public static String longComment(@Nonnull String comment, @Nullable String author) {
+	public static String longComment(String comment, String author) {
 		StringBuffer sb = new StringBuffer();
 		appendln(sb, "/**");
 		appendln(sb, " *");
@@ -61,15 +56,13 @@ public class JCoder extends CodeGenHelper {
 		return sb.toString();
 	}
 
-	@Nonnull
-	public static String lineBreakComment(@Nonnull String comment) {
+	public static String lineBreakComment(String comment) {
 		StringBuffer sb = new StringBuffer();
 		appendln(sb, "//--------------------------%s--------------------------------", comment);
 		return sb.toString();
 	}
 
-	@Nonnull
-	public static String serialVersionUID(@Nullable Long serialVersionUID) {
+	public static String serialVersionUID(Long serialVersionUID) {
 		if (serialVersionUID != null) {
 			return String.format("private static final long serialVersionUID = %dL;", serialVersionUID);
 		} else {
@@ -77,13 +70,11 @@ public class JCoder extends CodeGenHelper {
 		}
 	}
 
-	@Nonnull
-	public static String publicClsDef(@Nonnull String cls, @Nullable String extendCls, @Nullable String... interfaces) {
+	public static String publicClsDef(String cls, String extendCls, String... interfaces) {
 		return clsDef("public", cls, extendCls, interfaces);
 	}
 
-	@Nonnull
-	public static String clsDef(@Nonnull String clsDef, @Nonnull String cls, @Nullable String extendCls, @Nullable String... interfaces) {
+	public static String clsDef(String clsDef, String cls, String extendCls, String... interfaces) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(clsDef + " class " + cls.trim());
 		if (StringUtil.isNotBlank(extendCls)) {

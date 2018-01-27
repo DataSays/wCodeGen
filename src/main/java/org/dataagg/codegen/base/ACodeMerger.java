@@ -2,17 +2,14 @@ package org.dataagg.codegen.base;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 import org.dataagg.codegen.util.CodeGenHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 import jodd.io.FileUtil;
 import jodd.util.StringUtil;
@@ -45,7 +42,7 @@ public abstract class ACodeMerger {
 
 	public void parseCodes(String... lines) {
 		try {
-			Iterator<String> allLines = Lists.newArrayList(lines).iterator();
+			Iterator<String> allLines = Arrays.asList(lines).iterator();
 			StringBuffer sbCode = null;
 			boolean inCode = false;
 			String codeKey = "";
@@ -109,8 +106,7 @@ public abstract class ACodeMerger {
 		codes.put(codeKey, tmpCode);
 	}
 
-	@Nonnull
-	public String getCodes(@Nonnull String codeKey, String defaultCodes) {
+	public String getCodes(String codeKey, String defaultCodes) {
 		StringBuffer sbCode = new StringBuffer();
 		String code = defaultCodes;
 		if (mergeCode) {

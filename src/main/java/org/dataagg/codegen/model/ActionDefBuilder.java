@@ -1,7 +1,6 @@
 package org.dataagg.codegen.model;
 
 import static org.dataagg.codegen.base.ADefBase.*;
-import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +9,15 @@ import org.dataagg.codegen.base.ADefBuilderBase;
 import org.dataagg.util.collection.StrObj;
 import org.dataagg.util.lang.ValuePlus;
 import org.dataagg.util.props.PropDef;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
+	public static final String Method_GET = "GET";
+	public static final String Method_POST = "POST";
+	public static final String Method_PUT = "PUT";
+	public static final String Method_OPTIONS = "OPTIONS";
+	public static final String Method_PATCH = "PATCH";
+	public static final String Method_HEAD = "HEAD";
+	public static final String Method_DELETE = "DELETE";
 
 	public ActionDefBuilder(ActionDef m) {
 		super(m);
@@ -33,10 +38,10 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 		ActionDef actionDef = new ActionDef(entityDef);
 		ActionDefBuilder builder = new ActionDefBuilder(actionDef);
 
-		builder.addObjMethod("list", "查询", "/list", null, GET, POST).addParamRequestBody("SearchQueryJS", "queryJs", false);
-		builder.addObjMethod("save", "保存", "/save", entityCls, POST).addParamRequestBody(entityCls, entityNameL, true);
-		builder.addObjMethod("get", "获取", "/get/{id}", entityCls, GET).addParamPathVariable("Long", "id", true);
-		builder.addObjMethod("delete", "删除", "/delete/{id}", entityCls, DELETE).addParamPathVariable("Long", "id", true);
+		builder.addObjMethod("list", "查询", "/list", null, Method_GET, Method_POST).addParamRequestBody("SearchQueryJS", "queryJs", false);
+		builder.addObjMethod("save", "保存", "/save", entityCls, Method_POST).addParamRequestBody(entityCls, entityNameL, true);
+		builder.addObjMethod("get", "获取", "/get/{id}", entityCls, Method_GET).addParamPathVariable("Long", "id", true);
+		builder.addObjMethod("delete", "删除", "/delete/{id}", entityCls, Method_DELETE).addParamPathVariable("Long", "id", true);
 		return builder;
 	}
 
@@ -45,25 +50,25 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 		return this;
 	}
 
-	protected ActionDefBuilder addMethod(String name, String title, String url, RequestMethod... methods) {
+	protected ActionDefBuilder addMethod(String name, String title, String url, String... methods) {
 		PropDef item = main.newDef(name, title);
 		item.addCfg("url", url);
 		List<String> lstMethods = new ArrayList<>();
-		for (RequestMethod rm : methods) {
-			lstMethods.add(rm.name());
+		for (String m : methods) {
+			lstMethods.add(m);
 		}
 		item.addCfg("methods", lstMethods.toArray(new String[] {}));
 		main.addPropDef(item);
 		return this;
 	}
 
-	public ActionDefBuilder addObjMethod(String name, String title, String url, String returnCls, RequestMethod... methods) {
+	public ActionDefBuilder addObjMethod(String name, String title, String url, String returnCls, String... methods) {
 		addMethod(name, title, url, methods);
 		setReturnCls(returnCls, false);
 		return this;
 	}
 
-	public ActionDefBuilder addListMethod(String name, String title, String url, String returnCls, RequestMethod... methods) {
+	public ActionDefBuilder addListMethod(String name, String title, String url, String returnCls, String... methods) {
 		addMethod(name, title, url, methods);
 		setReturnCls(returnCls, true);
 		return this;

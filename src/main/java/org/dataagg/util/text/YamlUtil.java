@@ -22,6 +22,7 @@ public class YamlUtil {
 
 	public static WMap load(String codes) {
 		Yaml yml = new Yaml();
+		@SuppressWarnings("unchecked")
 		Map<String, Object> data = yml.loadAs(codes, Map.class);
 		return new WMap(data);
 	}

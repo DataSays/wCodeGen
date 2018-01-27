@@ -13,6 +13,7 @@ public class ValueMethodModel implements TemplateMethodModelEx {
 	private static final Logger LOG = LoggerFactory.getLogger(FreemarkerHelper.class);
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Object exec(List arguments) throws TemplateModelException {
 		try {
 			if (arguments != null && arguments.size() > 0) {

@@ -21,6 +21,7 @@ public class LoadYamlMethod implements TemplateMethodModelEx {
 	private static final Logger LOG = LoggerFactory.getLogger(LoadYamlMethod.class);
 
 	@Override
+	@SuppressWarnings("rawtypes")
 	public Object exec(List args) throws TemplateModelException {
 		if (args != null && args.size() >= 2) {
 			try {

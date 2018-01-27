@@ -1,7 +1,6 @@
 package org.dataagg.codegen.model;
 
-//##CodeMerger.import
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.dataagg.util.WJsonExclued;
 
 /**
  *
@@ -43,7 +42,7 @@ public class UIDataGridDef extends UIFormDef {
 
 	//是否是树形
 	@Override
-	@JsonIgnore
+	@WJsonExclued
 	public boolean isTree() {
 		return "true".equals(getCfg("isTree"));
 	}

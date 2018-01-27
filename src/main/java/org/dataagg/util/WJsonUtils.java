@@ -7,8 +7,6 @@ import java.lang.reflect.Type;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 import com.google.gson.GsonBuilder;
@@ -76,12 +74,12 @@ public class WJsonUtils {
 		gb.setExclusionStrategies(new ExclusionStrategy() {
 			@Override
 			public boolean shouldSkipClass(Class<?> clazz) {
-				return clazz.getAnnotation(WJsonExclued.class) != null || clazz.getAnnotation(JsonIgnore.class) != null;
+				return clazz.getAnnotation(WJsonExclued.class) != null;
 			}
 
 			@Override
 			public boolean shouldSkipField(FieldAttributes f) {
-				return f.getAnnotation(WJsonExclued.class) != null || f.getAnnotation(JsonIgnore.class) != null;
+				return f.getAnnotation(WJsonExclued.class) != null;
 			}
 		});
 		if (prettyPrinting) {
