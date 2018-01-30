@@ -45,7 +45,11 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 		setAction(niceName);
 		addCfg("backAction", "/" + niceName + "/list");
 		addCfg("isTree", isTree ? "true" : "false");
-		setOutDir("views\\base\\" + niceName + "\\");
+		if (project.equals("commons")) {
+			setOutDir("views\\base\\" + niceName + "\\");
+		} else {
+			setOutDir("views\\" + project + "\\" + niceName + "\\");
+		}
 	}
 
 	//关联字典名称

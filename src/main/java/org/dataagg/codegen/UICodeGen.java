@@ -1,5 +1,8 @@
 package org.dataagg.codegen;
 
+import org.dataagg.codegen.base.ACodeGenBase;
+import org.dataagg.codegen.base.AUIDefSet;
+import org.dataagg.codegen.model.ActionDef;
 import org.dataagg.codegen.model.UIDataGridDef;
 import org.dataagg.codegen.model.UIDataTableDef;
 import org.dataagg.codegen.model.UIFormDef;
@@ -10,9 +13,9 @@ import org.dataagg.util.collection.StrObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UICodeGen {
+public class UICodeGen extends ACodeGenBase<AUIDefSet> {
 	private static final Logger LOG = LoggerFactory.getLogger(UICodeGen.class);
-	public String baseDir = "..\\..\\pscWeb\\src\\";
+	public String baseDir = "..\\..\\ynfhWeb\\src\\";
 
 	/**
 	 * 根据EntityDef生成对应Entity的DataGrid vue文件
@@ -21,7 +24,8 @@ public class UICodeGen {
 	public void genVueDataGrid(UIDataGridDef dataGridDef) {
 		StrObj model = new StrObj();
 		model.put("uiDef", dataGridDef);
-		CodeGenUtils.genFtlCode("/ui/DataGridList.Vue.ftl", model, dataGridDef.getOutDir(), dataGridDef.getAction() + "List.vue");
+		genDebugModelJson(dataGridDef.getAction() + "List", model);
+		CodeGenUtils.genFtlCode("/ui/DataGridList.Vue.ftl", model, baseDir, dataGridDef.getOutDir(), dataGridDef.getAction() + "List.vue");
 	}
 
 	/**
@@ -30,11 +34,6 @@ public class UICodeGen {
 	 */
 	public void genVueDataEditForm(UIFormDef formDef) {
 		StrObj model = new StrObj();
-		LOG.debug("--uiDefJson--");
-		LOG.debug("--uiDef--");
-		LOG.debug(WJsonUtils.toJson(formDef));
-		LOG.debug("--uiDef.defGroups--");
-		LOG.debug(WJsonUtils.toJson(formDef.getDefGroups()));
 		for (UIItemDef itemDef : formDef.getDefs()) {
 			LOG.debug("--item.defGroupItem--");
 			LOG.debug(itemDef.isDefGroupItem() ? "true" : "false");
@@ -44,10 +43,11 @@ public class UICodeGen {
 			LOG.debug(itemDef.getDefGroupField());
 		}
 		model.put("uiDef", formDef);
+		genDebugModelJson(formDef.getAction() + "Form", model);
 		if (formDef.isTree()) {
-			CodeGenUtils.genFtlCode("/ui/Tree.Vue.ftl", model, formDef.getOutDir(), formDef.getAction() + "List.vue");
+			CodeGenUtils.genFtlCode("/ui/Tree.Vue.ftl", model, baseDir, formDef.getOutDir(), formDef.getAction() + "List.vue");
 		} else {
-			CodeGenUtils.genFtlCode("/ui/DataEditForm.Vue.ftl", model, formDef.getOutDir(), formDef.getAction() + "Form.vue");
+			CodeGenUtils.genFtlCode("/ui/DataEditForm.Vue.ftl", model, baseDir, formDef.getOutDir(), formDef.getAction() + "Form.vue");
 		}
 	}
 
@@ -58,7 +58,19 @@ public class UICodeGen {
 	public void genVueDataTable(UIDataTableDef dataTableDef) {
 		StrObj model = new StrObj();
 		model.put("uiDef", dataTableDef);
-		CodeGenUtils.genFtlCode("/ui/DataTableList.Vue.ftl", model, dataTableDef.getOutDir(), dataTableDef.getAction() + "List.vue");
+		genDebugModelJson(dataTableDef.getAction() + "Table", model);
+		CodeGenUtils.genFtlCode("/ui/DataTableList.Vue.ftl", model, baseDir, dataTableDef.getOutDir(), dataTableDef.getAction() + "List.vue");
 
+	}
+
+	@Override
+	public void genAllCode() {
+		if (def instanceof UIDataTableDef) {
+			genVueDataTable((UIDataTableDef) def);
+		} else if (def instanceof UIDataGridDef) {
+			genVueDataGrid((UIDataGridDef) def);
+		} else if (def instanceof UIFormDef) {
+			genVueDataEditForm((UIFormDef) def);
+		}
 	}
 }

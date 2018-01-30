@@ -36,7 +36,6 @@ public class UIDefBuilder extends ADefBuilderBase<AUIDefSet, UIItemDef> {
 	private static UIItemDef create(EntityItemDef entityItemDef) {
 		UIItemDef itemDef = new UIItemDef(entityItemDef.getField(), entityItemDef.getTitle());
 		entityItemDef.copyTo(itemDef);
-		//TODO add check code style
 		String field = entityItemDef.getField();
 		if ("delFlag".equals(field) || field.endsWith(".delFlag")) {
 			itemDef.setType(UIFormDef.TYPE_Switch + "");
@@ -108,7 +107,7 @@ public class UIDefBuilder extends ADefBuilderBase<AUIDefSet, UIItemDef> {
 				itemDef.setType(UIFormDef.TYPE_Radio + "");
 				itemDef.setTitle("性别");
 				itemDef.setDictName("gender");
-			} else if ("String".equals(itemDef.getValCls()) && entityItemDef.getWidth() != null && entityItemDef.getWidth() > 100) {
+			} else if ("String".equals(itemDef.getValCls()) && entityItemDef.getWidth() != null && entityItemDef.getWidth() > 200) {
 				itemDef.setType(UIFormDef.TYPE_TextArea + "");
 				itemDef.addCfg("rows", 5);
 				itemDef.addCfg("colSpan", 1);
@@ -173,6 +172,8 @@ public class UIDefBuilder extends ADefBuilderBase<AUIDefSet, UIItemDef> {
 		dataGridDef.init(entityDef.getName(), entityDef.getComments() + "表格", entityDef.getEntityCls(), entityDef.isTree());
 		for (EntityItemDef entityItemDef : allItems) {
 			UIItemDef itemDef = create(entityItemDef);
+			//dataTableDef和dataGridDef不能使用同一个itemDef实例
+			UIItemDef itemDef2 = create(entityItemDef);
 			String field = entityItemDef.getField();
 			//设置默认显示类型
 			if ("String".equals(entityItemDef.getValCls())) {
@@ -191,7 +192,7 @@ public class UIDefBuilder extends ADefBuilderBase<AUIDefSet, UIItemDef> {
 				if (field.indexOf(".") > 0) {
 					itemDef.setType(UIDataTableDef.TYPE_Hidden + "");
 				}
-				dataTableDef.addPropDef(itemDef);
+				dataTableDef.addPropDef(itemDef2);
 				dataGridDef.addPropDef(itemDef);
 			}
 		}
@@ -200,4 +201,215 @@ public class UIDefBuilder extends ADefBuilderBase<AUIDefSet, UIItemDef> {
 		dataGridDef.upDefSorts();
 		return dataGridDef;
 	}
+
+	private UIItemDef fetchItem(String field) {
+		for (UIItemDef item : main.getDefs()) {
+			if (field.equals(item.getField())) { return item; }
+		}
+		return null;
+	}
+
+	private UIItemDef fetchTableItem(String field) {
+		if (main instanceof UIDataGridDef) {
+			UIDataGridDef dataGridDef = (UIDataGridDef) main;
+			for (UIItemDef item : dataGridDef.getDataTable().getDefs()) {
+				if (field.equals(item.getField())) { return item; }
+			}
+		}
+		return null;
+	}
+
+	//-----------------------UIFormDef-----------------------------------
+	public UIDefBuilder fHidden(String... fields) {
+		for (String field : fields) {
+			UIItemDef item = fetchItem(field);
+			item.setType(UIFormDef.TYPE_Hidden + "");
+		}
+		return this;
+	}
+
+	//普通文本
+	public UIDefBuilder fText(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Text + "");
+		return this;
+	}
+
+	//多行文本
+	public UIDefBuilder fTextarea(String field, int rows, int colSpan) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_TextArea + "");
+		item.addCfg("rows", rows);
+		item.addCfg("colSpan", colSpan);
+		return this;
+	}
+
+	//富文本
+	public UIDefBuilder fRiceText(String field, Object editorOption) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_RiceText + "");
+		item.addCfg("editorOption", editorOption);
+		return this;
+	}
+
+	//密码类型
+	public UIDefBuilder fPassword(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Password + "");
+		return this;
+	}
+
+	//计数器
+	public UIDefBuilder fInputNumber(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_InputNumber + "");
+		return this;
+	}
+
+	//滑块
+	public UIDefBuilder fSlider(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Slider + "");
+		return this;
+	}
+
+	//开关
+	public UIDefBuilder fSwitch(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Switch + "");
+		return this;
+	}
+
+	//评分
+	public UIDefBuilder fRate(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Rate + "");
+		return this;
+	}
+
+	//颜色
+	public UIDefBuilder fColor(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Color + "");
+		return this;
+	}
+
+	//多选框
+	public UIDefBuilder fCheckBox(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_CheckBox + "");
+		return this;
+	}
+
+	//单选
+	public UIDefBuilder fRadio(String field, String dictName) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Radio + "");
+		item.setDictName(dictName);
+		return this;
+	}
+
+	//选择器
+	public UIDefBuilder fSelect(String field, String dictName) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Select + "");
+		item.setDictName(dictName);
+		return this;
+	}
+
+	//级联选择器
+	public UIDefBuilder fCascader(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Cascader + "");
+		return this;
+	}
+
+	//日期
+	public UIDefBuilder fDate(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Date + "");
+		return this;
+	}
+
+	//时间
+	public UIDefBuilder fTime(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Time + "");
+		return this;
+	}
+
+	//日期时间
+	public UIDefBuilder fDateTime(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_DateTime + "");
+		return this;
+	}
+
+	//文件上传
+	public UIDefBuilder fUpload(String field) {
+		UIItemDef item = fetchItem(field);
+		item.setType(UIFormDef.TYPE_Upload + "");
+		return this;
+	}
+
+	//-----------------------UIDataTableDef-----------------------------------
+	public UIDefBuilder tHidden(String... fields) {
+		for (String field : fields) {
+			UIItemDef item = fetchTableItem(field);
+			item.setType(UIDataTableDef.TYPE_Hidden + "");
+		}
+		return this;
+	}
+
+	//字典数据文本
+	public UIDefBuilder tDictText(String field, String dictName) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_DictText + "");
+		item.setDictName(dictName);
+		return this;
+	}
+
+	//普通文本
+	public UIDefBuilder tText(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_Text + "");
+		return this;
+	}
+
+	//表达式定义的文本
+	public UIDefBuilder tELText(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_ELText + "");
+		return this;
+	}
+
+	//日期
+	public UIDefBuilder tDate(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_Date + "");
+		return this;
+	}
+
+	//时间
+	public UIDefBuilder tTime(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_Time + "");
+		return this;
+	}
+
+	//日期时间
+	public UIDefBuilder tDateTime(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_DateTime + "");
+		return this;
+	}
+
+	//上传文件
+	public UIDefBuilder tUpload(String field) {
+		UIItemDef item = fetchTableItem(field);
+		item.setType(UIDataTableDef.TYPE_Upload + "");
+		return this;
+	}
+
+	//------------------------表格显示配置-----------------------------------
 }

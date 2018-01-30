@@ -275,7 +275,7 @@ public class EntityCodeGen extends ACodeGenBase<EntityDef> {
 			if (def.isTree()) { return; }
 			genEntityCls();
 			model = buildModel(def);
-			CodeGenUtils.genJson("../codeGen/tmp/" + model.strVal("nameL") + ".json", model);
+			genDebugModelJson(model.strVal("nameL"), model);
 			//genEntity();
 			genDao();
 			if (!def.isDetail()) {

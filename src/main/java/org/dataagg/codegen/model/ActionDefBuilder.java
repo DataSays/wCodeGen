@@ -32,17 +32,25 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 		return builder;
 	}
 
+	public static ActionDefBuilder newActionDef(EntityDefBuilder builder) {
+		return newActionDef(builder.main);
+	}
+
 	public static ActionDefBuilder newActionDef(EntityDef entityDef) {
 		String entityCls = entityDef.getEntityCls();
 		String entityNameL = genNameL(entityCls);
 		ActionDef actionDef = new ActionDef(entityDef);
 		ActionDefBuilder builder = new ActionDefBuilder(actionDef);
 
-		builder.addObjMethod("list", "查询", "/list", null, Method_GET, Method_POST).addParamRequestBody("SearchQueryJS", "queryJs", false);
-		builder.addObjMethod("save", "保存", "/save", entityCls, Method_POST).addParamRequestBody(entityCls, entityNameL, true);
-		builder.addObjMethod("get", "获取", "/get/{id}", entityCls, Method_GET).addParamPathVariable("Long", "id", true);
-		builder.addObjMethod("delete", "删除", "/delete/{id}", entityCls, Method_DELETE).addParamPathVariable("Long", "id", true);
+		builder.addFn(null, "list", "查询").bind("/list", Method_GET, Method_POST).paramRequestBody("SearchQueryJS", "queryJs", false);
+		builder.addFn(entityCls, "save", "保存").bind("/save", Method_POST).paramRequestBody(entityCls, entityNameL, true);
+		builder.addFn(entityCls, "get", "获取").bind("/get/{id}", Method_GET).paramPathVariable("Long", "id", true);
+		builder.addFn(entityCls, "delete", "删除").bind("/delete/{id}", Method_DELETE).paramPathVariable("Long", "id", true);
 		return builder;
+	}
+
+	public boolean match(EntityDefBuilder entityDefBuilder) {
+		return main.entityDef.getName().equalsIgnoreCase(entityDefBuilder.getName());
 	}
 
 	public ActionDefBuilder extClsInfo(String extClsInfo) {
@@ -62,15 +70,28 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 		return this;
 	}
 
-	public ActionDefBuilder addObjMethod(String name, String title, String url, String returnCls, String... methods) {
-		addMethod(name, title, url, methods);
+	public ActionDefBuilder addFn(String returnCls, String name, String title) {
+		PropDef item = main.newDef(name, title);
+		main.addPropDef(item);
 		setReturnCls(returnCls, false);
 		return this;
 	}
 
-	public ActionDefBuilder addListMethod(String name, String title, String url, String returnCls, String... methods) {
-		addMethod(name, title, url, methods);
+	public ActionDefBuilder addListFn(String returnCls, String name, String title) {
+		PropDef item = main.newDef(name, title);
+		main.addPropDef(item);
 		setReturnCls(returnCls, true);
+		return this;
+	}
+
+	public ActionDefBuilder bind(String url, String... methods) {
+		PropDef item = lastItem();
+		item.addCfg("url", url);
+		List<String> lstMethods = new ArrayList<>();
+		for (String m : methods) {
+			lstMethods.add(m);
+		}
+		item.addCfg("methods", lstMethods.toArray(new String[] {}));
 		return this;
 	}
 
@@ -116,17 +137,17 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 		return this;
 	}
 
-	public ActionDefBuilder addParam(String cls, String name) {
+	public ActionDefBuilder param(String cls, String name) {
 		addParam(name, cls, 0, false);
 		return this;
 	}
 
-	public ActionDefBuilder addParamRequestBody(String cls, String name, boolean required) {
+	public ActionDefBuilder paramRequestBody(String cls, String name, boolean required) {
 		addParam(name, cls, 1, required);
 		return this;
 	}
 
-	public ActionDefBuilder addParamPathVariable(String cls, String name, boolean required) {
+	public ActionDefBuilder paramPathVariable(String cls, String name, boolean required) {
 		addParam(name, cls, 2, required);
 		return this;
 	}
@@ -136,7 +157,7 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 	 * @param code
 	 * @return
 	 */
-	public ActionDefBuilder addMethodCode(String code) {
+	public ActionDefBuilder methodCode(String code) {
 		main.addCfg("methodCode", code);
 		return this;
 	}

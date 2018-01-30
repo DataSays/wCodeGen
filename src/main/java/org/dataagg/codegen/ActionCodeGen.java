@@ -207,6 +207,9 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 			coder.appendln2("import common from '../assets/common.js';");
 			coder.appendln2("");
 			coder.appendln2("export default {");
+			coder.appendln2("	init: function(page) {");
+			coder.appendln2("		common.init(page);");
+			coder.appendln2("	},");
 			coder.beginIndent();
 			coder.insertMergedCodes("_CustomMethods");
 			coder.append(JCoder.lineBreakComment("genCode"));
@@ -216,51 +219,40 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 					//action方法体
 					coder.startMergedCodes(actionName);
 					if ("list".equals(actionName)) {
-						coder.appendln2("doFetchList: function (self, page, query, callBack) {");
+						coder.appendln2("doFetchList: function (page, query, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.postAction(self, '%s%s', {", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("common.postAction('%s%s', {", def.getBaseUrl(), pd.getCfg("url"));
 						coder.appendln2("		page: page,");
 						coder.appendln2("		query: query");
 						coder.appendln2("	},");
-						coder.appendln2("	callBack, (error) => {");
-						coder.appendln2("		common.errorMsg(self, error);");
-						coder.appendln2("	});");
+						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else if ("save".equals(actionName)) {
-						coder.appendln2("doSave: function (self, data, callBack) {");
+						coder.appendln2("doSave: function (data, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.postAction(self, '%s%s', data,", def.getBaseUrl(), pd.getCfg("url"));
-						coder.appendln2("	callBack, (error) => {");
-						coder.appendln2("		common.errorMsg(self, error.message);");
-						coder.appendln2("	});");
+						coder.appendln2("common.postAction('%s%s', data,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else if ("get".equals(actionName)) {
-						coder.appendln2("doFetch: function (self, id, callBack) {");
+						coder.appendln2("doFetch: function (id, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.getAction(self, '%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
-						coder.appendln2("	callBack, (error) => {");
-						coder.appendln2("		console.log(error);");
-						coder.appendln2("		common.errorMsg(self, error);");
-						coder.appendln2("	});");
+						coder.appendln2("common.getAction('%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 
 					} else if ("delete".equals(actionName)) {
-						coder.appendln2("doDelete: function (self, id, callBack) {");
+						coder.appendln2("doDelete: function (id, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.delAction(self, '%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
-						coder.appendln2("	callBack, (error) => {");
-						coder.appendln2("		common.errorMsg(self, error);");
-						coder.appendln2("	});");
+						coder.appendln2("common.delAction('%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else {
 						//FIXME
-						coder.appendln2("%s: function (self, callBack) {", actionName);
+						coder.appendln2("%s: function (callBack, errorBack) {", actionName);
 						coder.appendln2("	common.FetchRemote = true;");
-						coder.appendln2("	common.getAction(self, '%s%s',", def.getBaseUrl(), pd.getCfg("url"));
-						coder.appendln2("		callBack, (error) => {");
-						coder.appendln2("			common.errorMsg(self, error);");
-						coder.appendln2("		});");
-						coder.appendln2("}");
+						coder.appendln2("	common.getAction('%s%s',", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("		callBack, errorBack);");
+						coder.appendln2("},");
 					}
 					coder.endMergedCodes(actionName);
 				}

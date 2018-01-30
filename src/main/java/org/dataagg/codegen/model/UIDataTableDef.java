@@ -14,6 +14,7 @@ public class UIDataTableDef extends AUIDefSet {
 	//##CodeMerger.code:_CustomFields
 	public static final int TYPE_Hidden = 1;//隐藏字段
 	public static final int TYPE_Text = 10;//普通文本
+	public static final int TYPE_DictText = 11;//字典数据文本
 	public static final int TYPE_ELText = 200;//表达式定义的文本j
 	public static final int TYPE_Date = 50;//日期
 	public static final int TYPE_Time = 55;//时间
