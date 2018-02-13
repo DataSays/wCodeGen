@@ -655,22 +655,7 @@ public class TextUtils {
 		return obj.toString();
 	}
 
-	public static String genCode(String no) {
-		return TextUtils.genCode(no, 3);
-	}
-
-	public static String genCode(String no, int digits) {
-		String index = "1";
-		if (StringUtil.isNotBlank(no)) {
-			index = StringUtil.substring(no, no.length() - digits, no.length());
-			index = String.valueOf(Integer.parseInt(index) + 1);
-		}
-		if (index.length() < digits) {
-			int l = digits - index.length();
-			for (int i = 0; i < l; i++) {
-				index = "0" + index;
-			}
-		}
-		return index;
+	public static String stringNO(Number no, int bit) {
+		return String.format("%0" + bit + "d", no);
 	}
 }

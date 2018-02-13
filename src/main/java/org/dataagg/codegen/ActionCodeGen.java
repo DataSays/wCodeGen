@@ -218,10 +218,13 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 					String actionName = pd.getField();
 					//action方法体
 					coder.startMergedCodes(actionName);
+					String url = def.getBaseUrl() + pd.getCfg("url");
+					url = StringUtil.replace(url, "{", "'+ ");
+					url = StringUtil.replace(url, "}", " + '");
 					if ("list".equals(actionName)) {
 						coder.appendln2("doFetchList: function (page, query, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.postAction('%s%s', {", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("common.postAction('%s', {", url);
 						coder.appendln2("		page: page,");
 						coder.appendln2("		query: query");
 						coder.appendln2("	},");
@@ -230,27 +233,27 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 					} else if ("save".equals(actionName)) {
 						coder.appendln2("doSave: function (data, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.postAction('%s%s', data,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("common.postAction('%s', data,", url);
 						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else if ("get".equals(actionName)) {
 						coder.appendln2("doFetch: function (id, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.getAction('%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("common.getAction('%s',", url);
 						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 
 					} else if ("delete".equals(actionName)) {
 						coder.appendln2("doDelete: function (id, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
-						coder.appendln2("common.delAction('%s%s' + id,", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("common.delAction('%s',", url);
 						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else {
 						//FIXME
 						coder.appendln2("%s: function (callBack, errorBack) {", actionName);
 						coder.appendln2("	common.FetchRemote = true;");
-						coder.appendln2("	common.getAction('%s%s',", def.getBaseUrl(), pd.getCfg("url"));
+						coder.appendln2("	common.getAction('%s',", url);
 						coder.appendln2("		callBack, errorBack);");
 						coder.appendln2("},");
 					}
