@@ -135,10 +135,10 @@ public class ProjectGen extends AYmlCodeGen {
 						MapTplHelper mapTplHelper = new MapTplHelper();
 						mapTplHelper.initModel(model);
 						//{appCode}App.java
-						writeByFile(mapTplHelper, "./tpls/App.java", srcPath + "/main/java/" + appPkg + capitalize(subProjectName) + "App.java");
+						writeByFile(mapTplHelper, "./tpls/App.java", srcPath + "/main/java/" + appPkg + "/" + capitalize(subProjectName) + "App.java");
 
 						//{appCode}AppTests.java
-						writeByFile(mapTplHelper, "./tpls/AppTests.java", srcPath + "/test/java/" + appPkg + capitalize(subProjectName) + "AppTests.java");
+						writeByFile(mapTplHelper, "./tpls/AppTests.java", srcPath + "/test/java/" + appPkg + "/" + capitalize(subProjectName) + "AppTests.java");
 					}
 				}
 				gradleGen.endMap();
