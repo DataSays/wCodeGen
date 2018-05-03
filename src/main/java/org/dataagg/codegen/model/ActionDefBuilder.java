@@ -37,20 +37,24 @@ public class ActionDefBuilder extends ADefBuilderBase<ActionDef, PropDef> {
 	}
 
 	public static ActionDefBuilder newActionDef(EntityDef entityDef) {
-		String entityCls = entityDef.getEntityCls();
+		String entityCls = entityDef.entityCls;
 		String entityNameL = genNameL(entityCls);
 		ActionDef actionDef = new ActionDef(entityDef);
 		ActionDefBuilder builder = new ActionDefBuilder(actionDef);
 
 		builder.addFn(null, "list", "查询").bind("/list", Method_GET, Method_POST).paramRequestBody("SearchQueryJS", "queryJs", false);
 		builder.addFn(entityCls, "save", "保存").bind("/save", Method_POST).paramRequestBody(entityCls, entityNameL, true);
-		builder.addFn(entityCls, "get", "获取").bind("/get/{id}", Method_GET).paramPathVariable("Long", "id", true);
-		builder.addFn(entityCls, "delete", "删除").bind("/delete/{id}", Method_DELETE).paramPathVariable("Long", "id", true);
+		String pkType = entityDef.cfg.strVal("pkType", "Long");
+		builder.addFn(entityCls, "get", "获取").bind("/get/{id}", Method_GET).paramPathVariable(pkType, "id", true);
+		builder.addFn(entityCls, "delete", "删除").bind("/delete/{id}", Method_DELETE).paramPathVariable(pkType, "id", true);
+		if (entityDef.isTree()) {
+			builder.addFn(null, "getRelation", "查询").bind("/getRelation", Method_POST).paramRequestBody("SearchQueryJS", "queryJs", false);
+		}
 		return builder;
 	}
 
 	public boolean match(EntityDefBuilder entityDefBuilder) {
-		return main.entityDef.getName().equalsIgnoreCase(entityDefBuilder.getName());
+		return main.entityDef.name.equalsIgnoreCase(entityDefBuilder.getName());
 	}
 
 	public ActionDefBuilder extClsInfo(String extClsInfo) {

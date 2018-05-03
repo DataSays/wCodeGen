@@ -1,4 +1,4 @@
-package org.dataagg.util;
+package org.dataagg.util.collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

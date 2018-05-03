@@ -3,10 +3,9 @@ package org.dataagg.codegen.base;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
+import org.dataagg.codegen.util.CodeBlock;
 import org.dataagg.codegen.util.CodeGenHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +17,8 @@ public abstract class ACodeMerger {
 	private static final Logger LOG = LoggerFactory.getLogger(ACodeMerger.class);
 	protected String CodeTag = "//##CodeMerger.code";
 	protected static final String N = "\r\n";
-	protected Map<String, String> codes;
 	protected boolean mergeCode = true;
+	private CodeBlock codeBlock;
 
 	public ACodeMerger(String file) {
 		init();
@@ -29,11 +28,7 @@ public abstract class ACodeMerger {
 	}
 
 	protected void init() {
-		if (codes == null) {
-			codes = new HashMap<>();
-		} else {
-			codes.clear();
-		}
+		codeBlock = new CodeBlock();
 	}
 
 	public void setMergeCode(boolean mergeCode) {
@@ -93,8 +88,9 @@ public abstract class ACodeMerger {
 
 	protected abstract boolean parseLineCode(Iterator<String> allLines, String line);
 
-	protected void appendCode(String codeKey, String code) {
-		String tmpCode = codes.get(codeKey);
+	public void appendCode(String codeKey, String code) {
+		codeBlock.codeKey(codeKey);
+		String tmpCode = codeBlock.codes(codeKey, null);
 		//如果codeKey对应的部分已经有代码, 则合并代码
 		if (tmpCode != null) {
 			tmpCode = CodeGenHelper.rmDuplicateEmptyLine(tmpCode);
@@ -103,14 +99,14 @@ public abstract class ACodeMerger {
 			tmpCode = code;
 		}
 		tmpCode = CodeGenHelper.rmDuplicateEmptyLine(tmpCode);
-		codes.put(codeKey, tmpCode);
+		codeBlock.put(codeKey, tmpCode);
 	}
 
 	public String getCodes(String codeKey, String defaultCodes) {
 		StringBuffer sbCode = new StringBuffer();
 		String code = defaultCodes;
 		if (mergeCode) {
-			code = codes.get(codeKey);
+			code = codeBlock.codes(codeKey, null);
 			if (StringUtil.isBlank(code)) {
 				code = defaultCodes;
 			}
@@ -120,9 +116,5 @@ public abstract class ACodeMerger {
 		code += CodeTag + N;
 		sbCode.append(code);
 		return sbCode.toString();
-	}
-
-	public Map<String, String> getAllCodes() {
-		return codes;
 	}
 }

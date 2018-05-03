@@ -1,6 +1,5 @@
 package org.dataagg.codegen.base;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +22,8 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 	}
 
 	public AUIDefSet(EntityDef entityDef) {
-		super(genNameU(entityDef.getEntityCls()));
-		common(entityDef.getProject(), entityDef.getPkg(), entityDef.getComments());
+		super(genNameU(entityDef.entityCls));
+		common(entityDef.project, entityDef.pkg, entityDef.comments);
 		this.entityDef = entityDef;
 	}
 
@@ -35,7 +34,7 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 	}
 
 	public void init(String name, String title, String cls, boolean isTree) {
-		setName(title);
+		this.name = title;
 		String niceName = StringUtil.cutPrefix(cls, "E");
 		if (niceName.startsWith("UI")) {
 			niceName = "ui" + niceName.substring(2);
@@ -64,7 +63,7 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 	public UIItemDef getItemByField(String field) {
 		if (defs != null) {
 			for (UIItemDef item : defs) {
-				if (item.getField().equals(field)) { return item; }
+				if (item.field.equals(field)) { return item; }
 			}
 		}
 		return null;
@@ -77,19 +76,19 @@ public abstract class AUIDefSet extends ADefBase<UIItemDef> {
 	@WJsonExclued
 	public Map<String, List<UIItemDef>> getDefGroups() {
 		Map<String, List<UIItemDef>> defGroups = new Hashtable<>();
-		if (defs != null) {
-			for (UIItemDef def : defs) {
-				if (def.isDefGroupItem()) {
-					String groupName = def.getDefGroupName();
-					List<UIItemDef> defGItems = defGroups.get(groupName);
-					if (defGItems == null) {
-						defGItems = new ArrayList<>();
-					}
-					defGItems.add(def);
-					defGroups.put(groupName, defGItems);
-				}
-			}
-		}
+		//		if (defs != null) {
+		//			for (UIItemDef def : defs) {
+		//				if (def.isDefGroupItem()) {
+		//					String groupName = def.getDefGroupName();
+		//					List<UIItemDef> defGItems = defGroups.get(groupName);
+		//					if (defGItems == null) {
+		//						defGItems = new ArrayList<>();
+		//					}
+		//					defGItems.add(def);
+		//					defGroups.put(groupName, defGItems);
+		//				}
+		//			}
+		//		}
 		return defGroups;
 	}
 

@@ -1,4 +1,4 @@
-package org.dataagg.util;
+package org.dataagg.util.collection;
 
 import java.util.Iterator;
 import java.util.List;

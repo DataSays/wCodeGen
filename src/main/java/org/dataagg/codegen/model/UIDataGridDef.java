@@ -27,13 +27,13 @@ public class UIDataGridDef extends UIFormDef {
 		dataTable.setAction(getAction());
 		//		}
 		//		if (dataTable != null && dataTable.getName() == null) {
-		dataTable.setName(getName());
+		dataTable.name = name;
 		//		}
 		//		if (dataTable != null && dataTable.getCfg() == null) {
 		dataTable.setCfg(getCfg());
 		//		}
 		//		if (dataTable != null && dataTable.getComment() == null) {
-		dataTable.setComments(getComments());
+		dataTable.comments = comments;
 		//		}
 		//		if (dataTable != null && dataTable.getOutDir() == null) {
 		dataTable.setOutDir(getOutDir());

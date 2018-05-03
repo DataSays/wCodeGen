@@ -1,4 +1,4 @@
-package org.dataagg.util;
+package org.dataagg.util.collection;
 
 public class WPage {
 	private int from = 0; //开始索引

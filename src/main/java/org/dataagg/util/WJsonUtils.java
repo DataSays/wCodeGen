@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import org.dataagg.util.collection.JsonObjGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.ExclusionStrategy;
@@ -157,6 +158,13 @@ public class WJsonUtils {
 		}
 	}
 
+	/**
+	 * 使用Json克隆对象
+	 * @param obj
+	 * @param cls
+	 * @param genericCls
+	 * @return
+	 */
 	public static <T extends Object> T reGetObj(T obj, Class<T> cls, Type... genericCls) {
 		String json = WJsonUtils.toJson(obj);
 		return toObject(json, cls, genericCls);

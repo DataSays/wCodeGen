@@ -1,105 +1,187 @@
 package org.dataagg.codegen;
 
-import jodd.io.FileUtil;
-import jodd.util.StringUtil;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.dataagg.util.text.CmdExecuter;
+import org.dataagg.codegen.util.CodeGenHelper;
+import org.dataagg.util.collection.WMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import jodd.io.FileUtil;
 
 /**
- * Created by watano on 2016/11/25.
+ * version: string
+ * archiveName: string
+ * description: string
+ * applyFrom: string
+ * plugins: [string...]
+ * deps: [string...]
+ * dependencyManagement: [string...]
+ * fatJar: string
+ * GradleJavaTask: [string mainCls, String workingDir, String args]
+ * ExtCodes: string
+ *
+ * Created by watano on 2017/2/24.
  */
-public class GradleGen extends CmdExecuter {
-	private static Logger LOG = LoggerFactory.getLogger(GradleGen.class);
-	private StringBuffer codes = new StringBuffer();
-	private StringBuffer excodes = new StringBuffer();
+public class GradleGen extends FtlCodeGen2 {
+	private static final Logger LOG = LoggerFactory.getLogger(GradleGen.class);
+	private CodeGenHelper codeGenHelper = null;
 
-	protected void appendCode(int index, String line) {
-		codes.append(StringUtil.repeat('\t', index));
-		codes.append(line);
-		codes.append('\n');
+	@Override
+	public void init() {
+		super.init();
+		//init codeGenHelper
+		if (codeGenHelper == null) {
+			codeGenHelper = new CodeGenHelper();
+		}
+		codeGenHelper.init();
 	}
 
 	@Override
-	public void doAction(String action, String[] args) {
-		if ("GenSubBuildGradle".equalsIgnoreCase(action.trim()) && args != null && args.length > 0) {
-			if (args.length == 1) {
-				genSubBuildGradle(args[0], "utf-8");
-			} else if (args.length == 2) {
-				genSubBuildGradle(args[0], args[1]);
+	public void gen() {
+		try {
+			if (data.has("subProjects")) {
+				//gen main project file
+				model.setv("type", "mainProject");
+				WMap subProjects = data.map("subProjects");
+				fmHelper.process(genType + ".ftl", model);
+				formatGradle(workDir + "/build.gradle");
+
+				//gen sub project files
+				model.setv("type", "subProject");
+				for (String subProjectName : subProjects.keySet()) {
+					model.setv("subProjectName", subProjectName);
+					fmHelper.process(genType + ".ftl", model);
+					formatGradle(workDir + "/" + subProjectName + "/build.gradle");
+				}
+
+				//gen project.md
+				codeGenHelper.init();
+				codeGenHelper.appendln("# " + data.getString("group") + ":" + data.getString("project") + ":" + data.getString("version"));
+				codeGenHelper.appendln("" + data.getString("description"));
+				codeGenHelper.appendln("");
+				String graph = "";//data.getString("project")+ "["+data.getString("description")+"]\n";
+				for (String subProjectName : subProjects.keySet()) {
+					WMap subProject = subProjects.map(subProjectName);
+					graph += subProjectName + "[" + subProjectName + "]\n";
+					codeGenHelper.appendln("## " + data.getString("group") + ":" + subProjectName + ":" + subProject.getString("version", data.getString("version")));
+					codeGenHelper.appendln("" + subProject.getString("description"));
+					codeGenHelper.appendln("");
+					for (String dep : subProject.strings("deps")) {
+						dep = dep.trim();
+						if (dep.startsWith("compile project(")) {
+							dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
+							graph += subProjectName + "-->" + dep + "[" + dep + "]\n";
+						}
+						codeGenHelper.appendln("+ " + dep);
+					}
+					codeGenHelper.appendln("");
+				}
+				codeGenHelper.appendln("# 项目依赖");
+				codeGenHelper.appendln("```graphLR");
+				codeGenHelper.appendln(graph + "```");
+				graph = "%% " + data.getString("project") + "\ngraph LR\n" + graph;
+				//FileUtil.writeString(workDir + "/project.mmd", graph);
+				codeGenHelper.writeFile(workDir + "/project.md");
+
+				//gen settings.gradle
+				codeGenHelper.init();
+				if (profiles != null && profiles.length > 0) {
+					WMap depInfo = new WMap();
+					for (String subProjectName : subProjects.keySet()) {
+						WMap subProject = subProjects.map(subProjectName);
+						for (String dep : subProject.strings("deps")) {
+							dep = dep.trim();
+							if (dep.startsWith("compile project(")) {
+								dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
+								graph += subProjectName + "-->" + dep + "[" + dep + "]\n";
+								depInfo.addv(subProjectName, dep);
+							}
+						}
+					}
+					Set<String> lstDeps = new HashSet<>();
+					for (String project : profiles) {
+						lstDeps = addAllDeps(lstDeps, depInfo, project);
+					}
+					for (String dep : lstDeps) {
+						codeGenHelper.appendln("include ':" + dep + "'");
+					}
+					codeGenHelper.writeFile(workDir + "/settings.gradle");
+				}
+			} else {
+				fmHelper.process(genType + ".ftl", model);
+				formatGradle(workDir + "/build.gradle");
 			}
-		} else if ("AddGradleJavaTask".equalsIgnoreCase(action.trim()) && args != null && args.length == 3) {
-			addGradleJavaTask(args[0], args[1], args[2]);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
-	public void addGradleJavaTask(String name, String mainCls, String pwd) {
-		excodes.append("task " + name + "(type: JavaExec, dependsOn: []) {\n");
-		excodes.append("\tworkingDir = " + pwd + "\n");
-		excodes.append("\tclasspath = sourceSets.main.runtimeClasspath\n");
-		excodes.append("\tmain = '" + mainCls + "'\n");
-		excodes.append("\targs = []\n");
-		excodes.append("\tsystemProperties System.getProperties()\n");
-		excodes.append("}\n\n");
+	public Set<String> addAllDeps(Set<String> lstDeps, WMap depInfo, String project) {
+		lstDeps.add(project);
+		List<String> deps = null;
+		Object o = depInfo.get(project);
+		if (o instanceof List) {
+			deps = depInfo.getList(project, String.class);
+		} else if (o != null) {
+			deps = new ArrayList<>();
+			deps.add(o.toString());
+		} else {
+			deps = new ArrayList<>();
+		}
+		for (String depName : deps) {
+			if (!lstDeps.contains(depName)) {
+				addAllDeps(lstDeps, depInfo, depName);
+			}
+		}
+		return lstDeps;
 	}
 
-	public void genSubBuildGradle(String file, String encoding) {
+	public static void formatGradle(String file) {
+		CodeGenHelper codeGenHelper = new CodeGenHelper();
+		codeGenHelper.init();
 		try {
-			appendCode(0, "plugins {");
-			for (String v : values("plugins")) {
-				appendCode(1, "id '" + v + "\'");
+			int countBlankLine = 0;
+			for (String line : FileUtil.readLines(file)) {
+				line = line.trim();
+				//only write one blank line
+				if (line.length() < 1) {
+					if (countBlankLine == 0) {
+						codeGenHelper.appendln("");
+					}
+					countBlankLine++;
+					continue;
+				} else {
+					countBlankLine = 0;
+				}
+				//check indent
+				if (line.endsWith("{")) {
+					codeGenHelper.appendln2(line);
+					codeGenHelper.beginIndent();
+				} else if (line.endsWith("}")) {
+					codeGenHelper.endIndent();
+					codeGenHelper.appendln2(line);
+				} else {
+					codeGenHelper.appendln2(line);
+				}
 			}
-			appendCode(0, "}");
-			appendCode(0, "");
-
-			appendCode(0, "group = '" + value("group") + "'");
-			appendCode(0, "version = '" + value("version") + "'");
-			appendCode(0, "description = \"\"\"" + value("description") + "\"\"\"");
-			appendCode(0, "archivesBaseName = '" + value("project") + "'");
-			appendCode(0, "");
-
-			if (StringUtil.isNotBlank(value("applyFrom"))) {
-				appendCode(0, "apply from: '" + value("applyFrom") + "'");
-			}
-			appendCode(0, "dependencies {");
-			for (String v : values("deps")) {
-				appendCode(1, v);
-			}
-			appendCode(0, "}");
-			appendCode(0, "");
-
-			appendCode(0, "configurations {");
-			appendCode(1, "published");
-			appendCode(0, "}");
-			appendCode(0, "");
-
-//            appendCode(0, "publishing {");
-//            appendCode(1, "publications {");
-//            appendCode(2, "nebula(MavenPublication) {");
-//            appendCode(2, "}");
-//            appendCode(1, "}");
-//            appendCode(0, "}");
-//            appendCode(0, "");
-
-			appendCode(0, excodes.toString());
-			LOG.info(file);
-			FileUtil.writeString(new File(file), codes.toString(), encoding);
-			codes = new StringBuffer();
-			excodes = new StringBuffer();
+			codeGenHelper.writeFile(file);
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
 	}
 
 	public static void main(String[] args) {
-		String cmdFile = "gradle.txt";
-		if (args != null && args.length > 0) {
-			cmdFile = args[0];
+		try {
+			GradleGen codegen = new GradleGen();
+			codegen.init();
+			codegen.genAll(args);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
 		}
-		new GradleGen().runFile(cmdFile);
 	}
 }

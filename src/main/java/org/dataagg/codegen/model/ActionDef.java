@@ -22,12 +22,12 @@ public class ActionDef extends ADefBase<PropDef> {
 	}
 
 	public ActionDef(EntityDef entityDef) {
-		super(genNameU(entityDef.getEntityCls()) + "Controller");
+		super(genNameU(entityDef.entityCls) + "Controller");
 		this.entityDef = entityDef;
-		String entityNameL = genNameL(entityDef.getEntityCls());
+		String entityNameL = genNameL(entityDef.entityCls);
 		controllerCls = name;
 		baseUrl = "/" + entityNameL;
-		common(entityDef.getProject(), entityDef.getRootPkg() + ".controller", entityDef.getComments());
+		common(entityDef.project, entityDef.getRootPkg() + ".controller", entityDef.comments);
 	}
 
 	@Override
@@ -35,10 +35,9 @@ public class ActionDef extends ADefBase<PropDef> {
 		return new PropDef(key, title);
 	}
 
-	@Override
 	public StrObj buildModel() {
-		StrObj model = super.buildModel();
-		String entityCls = entityDef.getEntityCls();
+		StrObj model = new StrObj();
+		String entityCls = entityDef.entityCls;
 		model.put("rootPkg", getRootPkg());
 		model.put("name", name);
 		model.put("project", project);

@@ -1,14 +1,23 @@
 package org.dataagg.codegen;
 
+import static jodd.util.StringUtil.capitalize;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.dataagg.codegen.model.GradleProject;
 import org.dataagg.codegen.util.AYmlCodeGen;
+import org.dataagg.codegen.util.JCoder;
 import org.dataagg.codegen.util.YmlGenHelper;
 import org.dataagg.util.collection.WMap;
+import org.dataagg.util.text.MapTplHelper;
 import org.dataagg.util.text.YamlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jodd.io.FileUtil;
 import jodd.util.ArraysUtil;
+import jodd.util.StringUtil;
 
 /**
  * Created by watano on 2017/2/6.
@@ -31,6 +40,7 @@ public class ProjectGen extends AYmlCodeGen {
 			gradleGen.set("GenType", "gradle");
 			gradleGen.inlineMap("props");
 			gradleGen.comment(null);
+			String appCode = props.str2("appCode");
 			GradleProject mainProject = new GradleProject(data);
 			mainProject.write(gradleGen);
 
@@ -104,17 +114,31 @@ public class ProjectGen extends AYmlCodeGen {
 					}
 
 					//gen config for sub projects
+					String srcPath = workDir + "/" + subProjectName + "/src";
 					if (ArraysUtil.contains(thisComponents, "springBoot")) {
-						YamlUtil.write(componetData.map("config"), workDir + "/" + subProjectName + "/src/main/resources/application.yml", 2);
-						YamlUtil.write(componetData.map("testConfig"), workDir + "/" + subProjectName + "/src/test/resources/bootstrap.yml", 2);
+						YamlUtil.write(componetData.map("config"), srcPath + "/main/resources/application.yml", 2);
+						YamlUtil.write(componetData.map("testConfig"), srcPath + "/test/resources/bootstrap.yml", 2);
 
 						//gen docker-compose.yml
-						dockerServices.put(subProjectName, componetData.map("docker"));
+						//						dockerServices.put(subProjectName, componetData.map("docker"));
 
-						WMap dockerCompose = new WMap();
-						dockerCompose.put("version", "2");
-						dockerCompose.put("services", dockerServices);
-						YamlUtil.write(dockerCompose, "./docker-compose.yml");
+						//						WMap dockerCompose = new WMap();
+						//						dockerCompose.put("version", "2");
+						//						dockerCompose.put("services", dockerServices);
+						//						YamlUtil.write(dockerCompose, "./docker-compose.yml");
+					}
+
+					//主项目生成对应的
+					if (appCode.equals(subProjectName)) {
+						String appPkg = props.str2("appPkg");
+						appPkg = StringUtil.replace(appPkg, ".", "/");
+						MapTplHelper mapTplHelper = new MapTplHelper();
+						mapTplHelper.initModel(model);
+						//{appCode}App.java
+						writeByFile(mapTplHelper, "./tpls/App.java", srcPath + "/main/java/" + appPkg + capitalize(subProjectName) + "App.java");
+
+						//{appCode}AppTests.java
+						writeByFile(mapTplHelper, "./tpls/AppTests.java", srcPath + "/test/java/" + appPkg + capitalize(subProjectName) + "AppTests.java");
 					}
 				}
 				gradleGen.endMap();
@@ -123,6 +147,14 @@ public class ProjectGen extends AYmlCodeGen {
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
+	}
+
+	private static void writeByFile(MapTplHelper mapTplHelper, String ftlFile, String outFile) throws IOException {
+		//if (!new File(outFile).exists()) {
+		String ftl = FileUtil.readString(ftlFile, "utf-8");
+		String codes = mapTplHelper.parse(ftl);
+		FileUtil.writeString(outFile, codes);
+		//}
 	}
 
 	public static void main(String[] args) {

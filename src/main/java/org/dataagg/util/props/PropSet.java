@@ -38,14 +38,14 @@ public interface PropSet<D extends PropDef> extends Serializable {
 	 */
 	public default D addPropDef(String key, String title, String valCls) {
 		D def = newDef(key, title);
-		def.setValCls(CodeGenUtils.simpleClsText(null, valCls));
+		def.valCls = CodeGenUtils.simpleClsText(null, valCls);
 		addPropDef(def);
 		return def;
 	}
 
 	public default D addListDef(String key, String title, String valCls) {
 		D def = addPropDef((key == null) ? "items" : key, title, valCls);
-		def.setArray(true);
+		def.isArray = true;
 		return def;
 	}
 
@@ -53,7 +53,7 @@ public interface PropSet<D extends PropDef> extends Serializable {
 	public default D getPropDef(String field) {
 		List<D> defs = getDefs();
 		for (D def : defs) {
-			if (field.equalsIgnoreCase(def.getField())) { return def; }
+			if (field.equalsIgnoreCase(def.field)) { return def; }
 		}
 		return null;
 	}
@@ -65,7 +65,7 @@ public interface PropSet<D extends PropDef> extends Serializable {
 		List<D> defs = getDefs();
 		if (defs != null) {
 			for (PropDef def : defs) {
-				fields.add(def.getField());
+				fields.add(def.field);
 			}
 		}
 		return fields;
@@ -75,7 +75,7 @@ public interface PropSet<D extends PropDef> extends Serializable {
 	public default void sortDefs() {
 		List<D> defs = getDefs();
 		if (defs != null) {
-			defs.sort((o1, o2) -> Integer.parseInt(o1.getSort().toString()) - Integer.parseInt(o2.getSort().toString()));
+			defs.sort((o1, o2) -> Integer.parseInt(o1.sort.toString()) - Integer.parseInt(o2.sort.toString()));
 		}
 	}
 
@@ -85,7 +85,8 @@ public interface PropSet<D extends PropDef> extends Serializable {
 		if (defs != null) {
 			Integer index = 1;
 			for (PropDef def : defs) {
-				def.setSort(index++);
+				Integer sort = index++;
+				def.sort = sort;
 			}
 		}
 	}

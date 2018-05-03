@@ -21,67 +21,22 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 	public static final String One2One = "__One2One__";
 	public static final String One2Many = "__One2Many__";
 	public static final String Many2Many = "__Many2Many__";
-	private String entityCls;//entity类额外配置
+	public String entityCls;//entity类额外配置
+	public String applictionPkg;
 
 	public Set<String> pkeys;// 主键字段名
 	public Set<String> fkeys;// 外键字段名
 
 	public List<StrObj> relations = new ArrayList<StrObj>();//存储关联关系
 
-	public boolean isCreateBy = false;
-	public boolean isCreateDate = false;
-	public boolean isUpdateBy = false;
-	public boolean isUpdateDate = false;
-	public boolean isDelFlag = false;
-
 	public EntityDef(String name) {
 		super(name);
 	}
 
-	public EntityDef(String name, String entityCls) {
+	public EntityDef(String name, String applictionPkg, String entityCls) {
 		this(name);
 		this.entityCls = entityCls;
-	}
-
-	@Override
-	public StrObj buildModel() {
-		StrObj model = super.buildModel();
-		String nameU = genName(entityCls);
-		model.put("rootPkg", getRootPkg());
-		model.put("name", name);
-		model.put("project", project);
-		model.put("pkg", pkg);
-		model.put("entityCls", entityCls);
-		model.put("comments", comments);
-		model.put("nameU", nameU);
-		model.put("nameL", genNameL(nameU));
-
-		// actionUrl
-		String actionUrl = getActionUrl();
-		if (StringUtil.isBlank(actionUrl)) {
-			actionUrl = genNameL(entityCls);
-			addCfg("actionUrl", actionUrl);
-		}
-		model.put("actionUrl", actionUrl);
-
-		String applictionCls = getProject();
-		applictionCls = applictionCls.substring(0, 1).toUpperCase() + applictionCls.substring(1) + "Application";
-
-		model.put("applictionCls", applictionCls);
-		model.put("applictionPkg", "com.dataagg");
-
-		// parentCls
-		String parentCls = (String) getCfg("parentCls");
-		if (parentCls == null) {
-			parentCls = "implements ILongIdEntity";
-			if (isTree()) {
-				parentCls = "implements ITreeLongIdEntity<" + getEntityCls() + ">";
-			}
-			addCfg("parentCls", parentCls);
-		}
-
-		model.put("entityDef", this);
-		return model;
+		this.applictionPkg = applictionPkg;
 	}
 
 	@Override
@@ -90,26 +45,28 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 	}
 
 	public String getFullCls() {
-		return getPkg() + "." + getEntityCls();
+		return pkg + "." + entityCls;
 	}
 
 	public String getSimpleName() {
-		return ADefBase.genName(getEntityCls());
+		return ADefBase.genName(entityCls);
 	}
 
 	public String getEntityNameU() {
-		return ADefBase.genNameU(getEntityCls());
+		return ADefBase.genNameU(entityCls);
 	}
 
 	public String getEntityNameL() {
-		return ADefBase.genNameL(getEntityCls());
+		return ADefBase.genNameL(entityCls);
 	}
 
 	// 添加一个Long类型的主键
 	public EntityItemDef addPkDef(String key, String title, String cls) {
 		EntityItemDef def = addPropDef(key, title, cls);
-		def.setType(1 + "");
+		def.type = 1 + "";
 		def.isPK(true);
+		addCfg("pkType", cls);
+		addCfg("pkField", key);
 		pkeys = StrObj.add4Set(pkeys, key);
 		return def;
 	}
@@ -122,18 +79,11 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 		return fkeys != null && fkeys.contains(key);
 	}
 
-	// 暂未用到该方法
-	public void addTreeDef(String parent, String parentIds, String items) {
-		String entityCls = getEntityCls();
-		addPropDef(parent == null ? parent : "parent", "上级节点", entityCls);
-		addPropDef(parentIds == null ? parentIds : "parentIds", "上级节点", "String");
-		addListDef(items == null ? items : "items", "子节点", entityCls);
-	}
-
-	public PropDef addOne2OneDef(String key, String title, String valCls, String field) {
+	public PropDef addOne2OneDef(String key, String title, String valCls, String field, String fkJavafiled) {
 		EntityItemDef def = addPropDef(key, title, valCls);
 		def.setRelation(EntityDef.One2One);
 		def.setRelationFrom(field);
+		def.addCfg("relationFromField", fkJavafiled);
 		fkeys = StrObj.add4Set(fkeys, field);
 		return def;
 	}
@@ -156,22 +106,29 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 		return def;
 	}
 
-	public void rebuild() {
+	public EntityItemDef find(String field) {
+		for (EntityItemDef item : defs) {
+			if (item.field.equals(field)) { return item; }
+		}
+		return null;
+	}
+
+	public void build() {
 		List<EntityItemDef> defs = getDefs();
 		if (defs == null) { return; }
 		StrObj relation = new StrObj();
 		for (EntityItemDef def : defs) {
 			if (def.isPK()) {
-				pkeys = StrObj.add4Set(pkeys, def.getField());
+				pkeys = StrObj.add4Set(pkeys, def.field);
 			}
 			if (def.isOne2One()) {
-				fkeys = StrObj.add4Set(fkeys, def.getField());
+				fkeys = StrObj.add4Set(fkeys, def.field);
 				relation = new StrObj();
 				relation.add4Set("relationType", EntityDef.One2One);
 				relation.add4Set("entityItemDef", def);
 				relations.add(relation);
 			} else if (def.isOne2Many()) {
-				fkeys = StrObj.add4Set(fkeys, def.getField());
+				fkeys = StrObj.add4Set(fkeys, def.field);
 				relation = new StrObj();
 				relation.add4Set("relationType", EntityDef.One2Many);
 				relation.add4Set("entityItemDef", def);
@@ -184,23 +141,7 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 				relation.add4Set("entityItemDef", def);
 				relations.add(relation);
 			}
-			if (!isCreateBy && def.isCreateBy()) {
-				isCreateBy = true;
-			}
-			if (!isCreateDate && def.isCreateDate()) {
-				isCreateDate = true;
-			}
-			if (!isUpdateBy && def.isUpdateBy()) {
-				isUpdateBy = true;
-			}
-			if (!isUpdateDate && def.isUpdateDate()) {
-				isUpdateDate = true;
-			}
-			if (!isDelFlag && def.isDelFlag()) {
-				isDelFlag = true;
-			}
 		}
-		//		System.out.println(this.entityCls+":::"+ isCreateBy+ "" +isCreateDate+ "" +isUpdateBy+ "" +isUpdateDate+ "" +isDelFlag);
 	}
 
 	// actionUrl
@@ -228,12 +169,11 @@ public class EntityDef extends ADefBase<EntityItemDef> {
 		addCfg("isTree", value);
 	}
 
-	//--------------------setter & getter-----------------------------------
-	public String getEntityCls() {
-		return entityCls;
+	public String pkType() {
+		return cfg.strVal("pkType");
 	}
 
-	public void setEntityCls(String entityCls) {
-		this.entityCls = entityCls;
+	public String pkField() {
+		return cfg.strVal("pkField");
 	}
 }

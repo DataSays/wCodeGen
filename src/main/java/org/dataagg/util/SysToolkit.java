@@ -1,7 +1,6 @@
 package org.dataagg.util;
 
 import jodd.io.FileUtil;
-import jodd.io.FileUtilParams;
 import jodd.io.StreamUtil;
 import jodd.util.StringUtil;
 import org.slf4j.Logger;
@@ -43,7 +42,7 @@ public class SysToolkit {
 	public static boolean isSymbolicLink(String path) throws Exception {
 		BasicFileAttributes attrs = Files.readAttributes(FileSystems.getDefault().getPath(polishFilePath(path)), BasicFileAttributes.
 
-		class, LinkOption.NOFOLLOW_LINKS);
+			class, LinkOption.NOFOLLOW_LINKS);
 		return attrs.isSymbolicLink();
 	}
 
@@ -67,21 +66,15 @@ public class SysToolkit {
 		}
 	}
 
-	public
-
-	static void copyDir(String srcDir, String destDir) throws Exception {
+	public static void copyDir(String srcDir, String destDir) throws Exception {
 		FileUtil.copyDir(polishFilePath(srcDir), polishFilePath(destDir));
 	}
 
-	public
-
-	static void copyFile(String srcDir, String destDir) throws Exception {
+	public static void copyFile(String srcDir, String destDir) throws Exception {
 		FileUtil.copyFile(polishFilePath(srcDir), polishFilePath(destDir));
 	}
 
-	public
-
-	static String polishFilePath(String path) {
+	public static String polishFilePath(String path) {
 		String path2 = StringUtil.replace(path, "\\", File.separator);
 		path2 = StringUtil.replace(path2, "/", File.separator);
 		return path2;
@@ -95,10 +88,10 @@ public class SysToolkit {
 				if (isSymbolicLink(file)) {
 					exec("rd /q " + f.getAbsolutePath() + "", ".", true, true);
 				} else {
-					FileUtil.deleteDir(f.getAbsolutePath(), new FileUtilParams().setRecursive(true).setContinueOnError(false));
+					FileUtil.deleteDir(f.getAbsolutePath());
 				}
 			} else {
-				FileUtil.delete(f.getAbsolutePath(), new FileUtilParams().setContinueOnError(false));
+				FileUtil.delete(f.getAbsolutePath());
 			}
 		}
 	}

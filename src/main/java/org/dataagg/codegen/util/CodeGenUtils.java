@@ -6,7 +6,9 @@ import java.lang.reflect.AccessibleObject;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import jodd.util.template.StringTemplateParser;
 import org.dataagg.util.FindFileUtil;
 import org.dataagg.util.WJsonUtils;
 import org.dataagg.util.collection.StrMap;
@@ -20,12 +22,11 @@ import jodd.bean.BeanUtilBean;
 import jodd.io.FileUtil;
 import jodd.paramo.MethodParameter;
 import jodd.paramo.Paramo;
-import jodd.util.StringTemplateParser;
-import jodd.util.StringTemplateParser.MacroResolver;
 import jodd.util.StringUtil;
 
 public class CodeGenUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(CodeGenUtils.class);
+	public static String baseDir = null;
 
 	public static void genCode(String target, String code) {
 		try {
@@ -70,19 +71,19 @@ public class CodeGenUtils {
 		return helper.process(template, data);
 	}
 
-	public static void genFtlCode(String template, StrObj data, String... pathFragments) {
+	public static void genFtlCode(String tplDir, String template, StrObj data, String... pathFragments) {
 		String targetFile = buildPath(pathFragments);
 		FreemarkerHelper helper = new FreemarkerHelper();
 		helper.init();
-		helper.setTplLoader("../codegen");
+		helper.setTplLoader(tplDir);
 		helper.process(template, data, targetFile);
 	}
 
-	public static void genFtlCode4Obj(String template, Object data, String... pathFragments) {
+	public static void genFtlCode4Obj(String tplDir, String template, Object data, String... pathFragments) {
 		String targetFile = buildPath(pathFragments);
 		FreemarkerHelper helper = new FreemarkerHelper();
 		helper.init();
-		helper.setTplLoader("../codegen");
+		helper.setTplLoader(tplDir);
 		helper.processObj(template, data, targetFile);
 	}
 
@@ -91,16 +92,10 @@ public class CodeGenUtils {
 		genCode(target, json);
 	}
 
-	private static String tplParse(String template, MacroResolver macroResolver) {
+	private static String tplParse(String template, Function<String, String> macroResolver) {
 		StringTemplateParser stp = new StringTemplateParser();
 		stp.setReplaceMissingKey(false);
-		return stp.parse(template, macroName -> {
-			String value = macroResolver.resolve(macroName);
-			if (value == null) {
-				LOG.warn("Can't find the '" + macroName + "'!");
-			}
-			return value;
-		});
+		return stp.parse(template, macroResolver);
 	}
 
 	public static String tpl(String template, final StrMap params) {

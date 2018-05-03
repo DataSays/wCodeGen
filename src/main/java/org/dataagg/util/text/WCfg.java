@@ -1,7 +1,7 @@
 package org.dataagg.util.text;
 
 import jodd.props.Props;
-import jodd.typeconverter.Convert;
+import jodd.typeconverter.Converter;
 import jodd.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +41,11 @@ public class WCfg {
 	}
 
 	public static double getDoubleValue(final String key, final String... profiles) {
-		return Convert.toDoubleValue(getValue(key, profiles));
+		return Converter.get().toDoubleValue(getValue(key, profiles));
 	}
 
 	public static boolean getBoolValue(final String key, final String... profiles) {
-		return Convert.toBooleanValue(getValue(key, profiles));
+		return Converter.get().toBooleanValue(getValue(key, profiles));
 	}
 
 	public static Map<String, Object> getMap(String prefix) {

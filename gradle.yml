@@ -4,8 +4,8 @@ Profile: []
 props: {}
 group: org.dataagg
 project: wCodeGen
-version: "1.0"
-plugins: [java,eclipse,idea,"com.github.ben-manes.versions' version '0.13.0"]
+version: "1.2"
+plugins: [java,eclipse,idea,"com.github.ben-manes.versions' version '0.17.0"]
 description: DataAgg wCodeGen
 deps:
   - compile 'org.slf4j:slf4j-api:1.7.22'
@@ -25,4 +25,4 @@ deps:
   - compile 'org.nutz:nutz:1.r.63'
   - compile 'org.yaml:snakeyaml:1.19'
   - testCompile 'junit:junit:4.12'
-fatJar: org.dataagg.codeGen2.FtlCodeGen2
+fatJar: org.dataagg.codegen.FtlCodeGen2

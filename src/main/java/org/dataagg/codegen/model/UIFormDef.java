@@ -90,13 +90,13 @@ public class UIFormDef extends AUIDefSet {
 			linkFields = new HashSet<>();
 		}
 		for (String field : fields) {
-			linkEntities.add(entityDef.getEntityCls());
+			linkEntities.add(entityDef.entityCls);
 			if (!field.contains(".")) {
 				PropDef def = getPropDef(field);
-				if (def != null && Integer.parseInt(def.getType()) < 20) {
+				if (def != null && Integer.parseInt(def.type) < 20) {
 					//非对象类型
-					linkFields.add(entityDef.getEntityCls() + ":" + field);
-					if ("10".equals(def.getType())) {
+					linkFields.add(entityDef.entityCls + ":" + field);
+					if ("10".equals(def.type)) {
 						//主键字段
 						pKeys.add(field);
 					}
@@ -109,8 +109,8 @@ public class UIFormDef extends AUIDefSet {
 				String field0 = field.substring(0, field.indexOf("."));
 				String field1 = field.substring(field.indexOf(".") + 1);
 				PropDef def = getPropDef(field0);
-				if (def != null && Integer.parseInt(def.getType()) >= 20) {
-					EntityDef subEntityDef = fetchEntityDef(def.getValCls());
+				if (def != null && Integer.parseInt(def.type) >= 20) {
+					EntityDef subEntityDef = fetchEntityDef(def.valCls);
 					addEntityDef(subEntityDef, field1);
 				} else {
 					throw new IllegalArgumentException(field + "不能添加此字段!");
@@ -120,7 +120,6 @@ public class UIFormDef extends AUIDefSet {
 	}
 
 	private EntityDef fetchEntityDef(String valCls) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

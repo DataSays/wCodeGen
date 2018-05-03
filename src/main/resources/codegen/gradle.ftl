@@ -36,11 +36,17 @@
 <#--------------------------------------------------------->
 <#macro javaPlugin project>
 <#if project.plugins?seq_contains('java')>
+<#if project.plugins?seq_contains('war')>
+	war {
+		<#if ((project.archiveName)!'') != ''>archiveName = '${project.archiveName}'</#if>
+	}
+<#else>
 	jar {
 		baseName = '${project.project}'
 		version = '${project.version}'
 		<#if ((project.archiveName)!'') != ''>archiveName = '${project.archiveName}'</#if>
 	}
+</#if>
 
 	sourceCompatibility = ${jdkVersion}
 	targetCompatibility = ${jdkVersion}

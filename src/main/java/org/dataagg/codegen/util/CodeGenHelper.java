@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.dataagg.codegen.base.ACodeMerger;
+import org.dataagg.util.lang.IStringHelper;
 
 import jodd.io.FileUtil;
 import jodd.util.StringUtil;
@@ -13,13 +14,12 @@ import jodd.util.StringUtil;
 /**
  * Created by watano on 2017/2/7.
  */
-public class CodeGenHelper {
+public class CodeGenHelper implements IStringHelper {
 	protected String codeFile;
-	protected StringBuffer codeBuff = null;
 	protected String encoding = "utf-8";
 	protected int indent = 0;
-	protected StringBuffer tmpCoderBuffer;
 	protected ACodeMerger codeMerger;
+	public CodeBlock codeBlock = new CodeBlock();
 
 	public CodeGenHelper() {
 		init();
@@ -30,46 +30,12 @@ public class CodeGenHelper {
 		init();
 	}
 
-	public static String capFirst(String field) {
-		return field.substring(0, 1).toUpperCase() + field.substring(1);
-	}
-
-	public static String uncapFirst(String field) {
-		return field.substring(0, 1).toLowerCase() + field.substring(1);
-	}
-
 	public static void append(StringBuffer sb, String line, Object... args) {
 		sb.append(String.format(line, args));
 	}
 
 	public static void appendln(StringBuffer sb, String line, Object... args) {
 		sb.append(String.format(line + "%n", args));
-	}
-
-	public static String joinPrefix(String prefix, String... texts) {
-		String outText = "";
-		if (texts != null) {
-			for (String inter : texts) {
-				if (StringUtil.isNotBlank(inter)) {
-					outText += prefix + inter.trim();
-				}
-			}
-			outText = StringUtil.cutPrefix(outText, prefix);
-		}
-		return outText;
-	}
-
-	public static String joinSuffix(String suffix, String... texts) {
-		String outText = "";
-		if (texts != null) {
-			for (String inter : texts) {
-				if (StringUtil.isNotBlank(inter)) {
-					outText += inter.trim() + suffix;
-				}
-			}
-			outText = StringUtil.cutSuffix(outText, suffix);
-		}
-		return outText;
 	}
 
 	/**
@@ -89,7 +55,7 @@ public class CodeGenHelper {
 	}
 
 	public CodeGenHelper init() {
-		codeBuff = new StringBuffer();
+		codeBlock.codeKey(null);
 		return this;
 	}
 
@@ -108,18 +74,17 @@ public class CodeGenHelper {
 	}
 
 	public CodeGenHelper append(String line, Object... args) {
-		append(codeBuff, line, args);
+		codeBlock.appendFormatCode(line, args);
 		return this;
 	}
 
 	public CodeGenHelper appendln(String line, Object... args) {
-		appendln(codeBuff, line, args);
+		codeBlock.appendFormatCode(line+"%n", args);
 		return this;
 	}
 
 	public CodeGenHelper appendln2(String line, Object... args) {
-		codeBuff.append(indent());
-		appendln(codeBuff, line, args);
+		appendln(indent()+line, args);
 		return this;
 	}
 
@@ -146,16 +111,16 @@ public class CodeGenHelper {
 	}
 
 	public int offset() {
-		return codeBuff.length() - 1;
+		return codeBlock.offset();
 	}
 
 	public CodeGenHelper insert(int start, String text) {
-		codeBuff.insert(start, text);
+		codeBlock.insertPlainCode(start, text);
 		return this;
 	}
 
 	public String getCode() {
-		return codeBuff.toString();
+		return codeBlock.codes(null, null);
 	}
 
 	public void writeFile(String outFilePath) throws IOException {
@@ -163,7 +128,7 @@ public class CodeGenHelper {
 		if (!outFile.getParentFile().exists()) {
 			FileUtil.mkdirs(outFile.getParentFile());
 		}
-		String code = codeBuff.toString();
+		String code = getCode();
 		code = rmDuplicateEmptyLine(code);
 		FileUtil.writeString(outFile, code, encoding);
 	}
@@ -173,7 +138,7 @@ public class CodeGenHelper {
 	 * @param key
 	 */
 	public void insertMergedCodes(String key) {
-		appendln("%s", codeMerger.getCodes(key, ""));
+		appendln(codeMerger.getCodes(key, codeBlock.codes(key, "")));
 	}
 
 	/**
@@ -181,8 +146,7 @@ public class CodeGenHelper {
 	 * @param key
 	 */
 	public void startMergedCodes(String key) {
-		tmpCoderBuffer = codeBuff;
-		codeBuff = new StringBuffer();
+		codeBlock.codeKey(key);
 	}
 
 	/**
@@ -190,9 +154,9 @@ public class CodeGenHelper {
 	 * @param key
 	 */
 	public void endMergedCodes(String key) {
-		String codes = codeMerger.getCodes(key, codeBuff.toString());
-		codeBuff = tmpCoderBuffer;
-		codeBuff.append(codes);
+		String codes = codeMerger.getCodes(key, codeBlock.codes(key, null));
+		codeBlock.codeKey(null);
+		codeBlock.appendPlainCode(codes);
 	}
 
 	/**

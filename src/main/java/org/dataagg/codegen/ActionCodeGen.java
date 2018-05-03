@@ -22,8 +22,16 @@ import jodd.util.StringUtil;
 
 public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 	private static final Logger LOG = LoggerFactory.getLogger(ActionCodeGen.class);
-
 	public String webProjectHome = "";
+	private JCoder coder = null;
+
+	public ActionCodeGen(String baseDir, boolean mergeCode) {
+		super(baseDir, mergeCode);
+	}
+
+	protected void appendCode(String line) {
+		coder.appendln2(mapTplHelper.parse(line));
+	}
 
 	@Override
 	public void genAllCode() {
@@ -33,16 +41,19 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 
 	protected void genController() {
 		try {
-			String javaFile = def.javaFile(def.getRootPkg() + ".controller", def.getControllerCls());
+			String javaFile = baseDir + def.javaFile(def.getRootPkg() + ".controller", def.getControllerCls());
 			LOG.info(javaFile);
 
-			String entityPkg = def.entityDef.getPkg();
-			String entityCls = def.entityDef.getEntityCls();
+			String entityPkg = def.entityDef.pkg;
+			String entityCls = def.entityDef.entityCls;
 			String entityNameU = genNameU(entityCls);
 			String entityNameL = genNameL(entityCls);
+			if (def.cfg == null) {
+				def.cfg = new StrObj();
+			}
 
 			JCoder coder = new JCoder(javaFile, mergeCode);
-			coder.appendln2("package %s;", def.getPkg());
+			coder.appendln2("package %s;", def.pkg);
 
 			coder.appendln2("");
 			coder.appendln2("import static com.dataagg.util.CndUtils.*;");
@@ -61,20 +72,21 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 			coder.appendln2("import org.springframework.web.bind.annotation.*;");
 			coder.appendln2("");
 
-			coder.appendln2("import com.dataagg.commons.base.*;");
-			coder.appendln2("import %s.%s;", entityPkg, def.entityDef.getEntityCls());
+			coder.appendln2("import com.dataagg.commons.mvc.*;");
+			coder.appendln2("import %s.%s;", entityPkg, def.entityDef.entityCls);
+			coder.appendln2("import %s.ACommonController;", def.entityDef.applictionPkg);
 			coder.appendln2("import %s.service.%sService;", def.getRootPkg(), entityNameU);
 			coder.appendln2("import com.dataagg.util.SearchQueryJS;");
 
 			coder.markImportCodeOffset();
 
 			coder.appendln2("");
-			coder.append(JCoder.longComment(def.getComments(), null));
+			coder.append(JCoder.longComment(def.comments, null));
 			coder.appendln2("@RestController");
 			coder.appendln2("@RequestMapping(\"%s\")", def.getBaseUrl());
-			coder.appendln2("public class %s extends BaseController {", genNameU(def.getName()));
+			coder.appendln2("public class %s extends ACommonController {", genNameU(def.name));
 			coder.beginIndent();
-			coder.appendln2("private Logger LOG = LoggerFactory.getLogger(%s.class);", genNameU(def.getName()));
+			coder.appendln2("private Logger LOG = LoggerFactory.getLogger(%s.class);", genNameU(def.name));
 			coder.appendln2("");
 			coder.appendln2("@Autowired");
 			coder.appendln2("public %sService %sService;", entityNameU, entityNameL);
@@ -85,7 +97,7 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 			coder.append(JCoder.lineBreakComment("genCode"));
 			if (def.getDefs() != null) {
 				for (PropDef pd : def.getDefs()) {
-					String actionName = pd.getField();
+					String actionName = pd.field;
 					//http methods
 					String methodsCode = "";
 					String[] methods = (String[]) pd.getCfg("methods");
@@ -127,12 +139,12 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 					coder.startMergedCodes(actionName);
 					if ("list".equals(actionName)) {
 						coder.appendln2("// 过滤");
-						coder.appendln2("Cnd cnd = Cnd.where(delFlag());");
+						coder.appendln2("Cnd cnd = Cnd.NEW();");
 						coder.appendln2("WMap query = ControllerHelper.getQuery(queryJs);");
 						coder.appendln2("if (query.str2(\"name\") != null) {");
 						coder.appendln2("	cnd.and(Exps.like(\"name\", query.str2(\"name\")));");
 						coder.appendln2("}");
-						coder.appendln2("cnd.desc(\"id\");");
+						//coder.appendln2("cnd.desc(\"id\");");
 						coder.appendln2("QueryResult queryResult = %sService.query(cnd, ControllerHelper.toPager(queryJs), %sService.ProfileList);", entityNameL, entityNameU);
 						coder.appendln2("WMap resultData = ControllerHelper.buildResult(queryJs, queryResult, (%s %s) -> {", entityCls, entityNameL);
 						coder.beginIndent();
@@ -168,13 +180,34 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 						coder.appendln2("} else {");
 						coder.appendln2("	result.errorMsg(\"删除失败！\");");
 						coder.appendln2("}");
+					} else if ("getRelation".equals(actionName)) {
+						String pkType = def.cfg.strVal("pkType", "Long");
+						coder.appendln2("WMap query = ControllerHelper.getQuery(queryJs);");
+						coder.appendln2("%s id = null;", pkType);
+						coder.addImportCls("com.dataagg.commons.base.TreeDaoHelper");
+						coder.appendln2("int mode= TreeDaoHelper.ModeQueryAllChildWithCurrent;");
+						coder.appendln2("if (query.str2(\"id\") != null) {");
+						if ("String".equals(pkType)) {
+							coder.appendln2("	id = query.str2(\"id\");");
+						} else if ("Long".equals(pkType)) {
+							coder.appendln2("	id = Long.valueOf(query.str2(\"id\"));");
+						} else {
+
+						}
+						coder.appendln2("}");
+						coder.appendln2("if (query.str2(\"mode\") != null) {");
+						coder.appendln2("	mode = Integer.valueOf(query.str2(\"mode\"));");
+						coder.appendln2("}");
+						coder.appendln2("%s data = %sService.queryRelations2(id, mode, null, null);", entityCls, entityNameL);
+						coder.appendln2("WMap resultData = ControllerHelper.buildResult(data == null ? null : data.getItems());");
+						coder.appendln2("result.ok(resultData, \"查询成功！\");", entityNameL);
 					}
 					coder.endMergedCodes(actionName);
 
 					coder.endIndent();
 					coder.appendln2("} catch (Exception e) {");
 					coder.beginIndent();
-					coder.appendln2("LOG.error(\"%s失败：\" + e.getMessage());", pd.getTitle());
+					coder.appendln2("LOG.error(\"%s失败：\" + e.getMessage());", pd.title);
 					if (!"void".equals(pd.getCfg("returnObj"))) {
 						coder.appendln2("result.error(e);");
 					}
@@ -203,7 +236,7 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 			String jsFile = webProjectHome + "src\\actions\\" + def.entityDef.getEntityNameL() + "Actions.js";
 			LOG.info(jsFile);
 
-			JSCoder coder = new JSCoder(jsFile);
+			JSCoder coder = new JSCoder(jsFile, mergeCode);
 			coder.appendln2("import common from '../assets/common.js';");
 			coder.appendln2("");
 			coder.appendln2("export default {");
@@ -215,7 +248,7 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 			coder.append(JCoder.lineBreakComment("genCode"));
 			if (def.getDefs() != null) {
 				for (PropDef pd : def.getDefs()) {
-					String actionName = pd.getField();
+					String actionName = pd.field;
 					//action方法体
 					coder.startMergedCodes(actionName);
 					String url = def.getBaseUrl() + pd.getCfg("url");
@@ -242,11 +275,18 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 						coder.appendln2("common.getAction('%s',", url);
 						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
-
 					} else if ("delete".equals(actionName)) {
 						coder.appendln2("doDelete: function (id, callBack, errorBack) {");
 						coder.appendln2("common.FetchRemote = true;");
 						coder.appendln2("common.delAction('%s',", url);
+						coder.appendln2("	callBack, errorBack);");
+						coder.appendln2("},");
+
+					} else if ("getRelation".equals(actionName)) {
+						coder.appendln2("doFetchRelation: function (id, mode, queryCnd, callBack, errorBack) {");
+						coder.appendln2("common.FetchRemote = true;");
+						coder.appendln2("common.postAction('%s',", url);
+						coder.appendln2("{query: {id: id, mode: mode, queryCnd: queryCnd}},");
 						coder.appendln2("	callBack, errorBack);");
 						coder.appendln2("},");
 					} else {
@@ -272,7 +312,9 @@ public class ActionCodeGen extends ACodeGenBase<ActionDef> {
 		if (allEntityDefBuilder != null) {
 			for (EntityDefBuilder entityDefBuilder : allEntityDefBuilder) {
 				ActionDefBuilder actionDefBuilder = ActionDefBuilder.newActionDef(entityDefBuilder.main);
-				fun.accept(actionDefBuilder);
+				if (fun != null) {
+					fun.accept(actionDefBuilder);
+				}
 				genCodeByDef(actionDefBuilder.main);
 			}
 		}

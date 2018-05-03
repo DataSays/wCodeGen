@@ -4,20 +4,21 @@ import java.util.List;
 
 import org.dataagg.codegen.util.CodeGenHelper;
 import org.dataagg.util.collection.StrObj;
+import org.dataagg.util.lang.IStringHelper;
 import org.dataagg.util.props.PropDef;
 import org.dataagg.util.props.PropSet;
 
 import jodd.util.StringUtil;
 
-public abstract class ADefBase<I extends PropDef> implements PropSet<I> {
+public abstract class ADefBase<I extends PropDef> implements PropSet<I>, IStringHelper {
 	private static final long serialVersionUID = -5924670759336190365L;
-	protected String name;//名称
-	protected String project;//所属项目
-	protected String pkg;//包名
-	protected String comments;//备注
+	public String name;//名称
+	public String project;//所属项目
+	public String pkg;//包名
+	public String comments;//备注
 
-	protected StrObj cfg;//额外配置
-	protected List<I> defs;//Item定义
+	public StrObj cfg;//额外配置
+	public List<I> defs;//Item定义
 
 	public ADefBase(String name) {
 		this.name = name;
@@ -26,21 +27,21 @@ public abstract class ADefBase<I extends PropDef> implements PropSet<I> {
 	public static String javaSrcPath(String project, String pkg) {
 		String outDir = pkg;
 		outDir = StringUtil.replace(outDir, ".", "/");
-		return String.format("../%s/src/main/java/%s", project, outDir);
+		return String.format("/%s/src/main/java/%s", project, outDir);
 	}
 
 	public static String testJavaSrcPath(String project, String pkg) {
 		String outDir = pkg;
 		outDir = StringUtil.replace(outDir, ".", "/");
-		return String.format("../%s/src/test/java/%s", project, outDir);
+		return String.format("/%s/src/test/java/%s", project, outDir);
 	}
 
 	public String javaFile(String pkg, String name) {
-		return String.format("%s/%s.java", javaSrcPath(project, pkg), CodeGenHelper.capFirst(name));
+		return String.format("%s/%s.java", javaSrcPath(project, pkg), capFirst(name));
 	}
 
 	public String testJavaFile(String pkg, String name) {
-		return String.format("%s/%s.java", testJavaSrcPath(project, pkg), CodeGenHelper.capFirst(name));
+		return String.format("%s/%s.java", testJavaSrcPath(project, pkg), capFirst(name));
 	}
 
 	public void common(String project, String pkg, String comments) {
@@ -100,28 +101,8 @@ public abstract class ADefBase<I extends PropDef> implements PropSet<I> {
 		return cfg == null ? null : cfg.get(name);
 	}
 
-	public StrObj buildModel() {
-		return new StrObj();
-	}
-
 	public String getRootPkg() {
 		return pkg.substring(0, pkg.lastIndexOf("."));
-	}
-
-	public String getProject() {
-		return project;
-	}
-
-	public void setProject(String project) {
-		this.project = project;
-	}
-
-	public String getPkg() {
-		return pkg;
-	}
-
-	public void setPkg(String pkg) {
-		this.pkg = pkg;
 	}
 
 	@Override
@@ -140,21 +121,5 @@ public abstract class ADefBase<I extends PropDef> implements PropSet<I> {
 
 	public void setCfg(StrObj cfg) {
 		this.cfg = cfg;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getComments() {
-		return comments;
-	}
-
-	public void setComments(String comments) {
-		this.comments = comments;
 	}
 }

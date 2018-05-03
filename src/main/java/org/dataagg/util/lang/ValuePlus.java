@@ -1,54 +1,56 @@
 package org.dataagg.util.lang;
 
-import jodd.typeconverter.Convert;
+
+import jodd.typeconverter.Converter;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 public class ValuePlus {
 	public static int intValue(Object value, int defaultValue) {
-		if (value != null) { return Convert.toIntValue(value); }
+		if (value != null) { return Converter.get().toIntValue(value); }
 		return defaultValue;
 	}
 
 	public static long longValue(Object value, long defaultValue) {
-		if (value != null) { return Convert.toLongValue(value); }
+		if (value != null) { return Converter.get().toLongValue(value); }
 		return defaultValue;
 	}
 
 	public static short shortValue(Object value, short defaultValue) {
-		if (value != null) { return Convert.toShortValue(value); }
+		if (value != null) { return Converter.get().toShortValue(value); }
 		return defaultValue;
 	}
 
 	public static float floatValue(Object value, float defaultValue) {
-		if (value != null) { return Convert.toFloatValue(value); }
+		if (value != null) { return Converter.get().toFloatValue(value); }
 		return defaultValue;
 	}
 
 	public static double doubleValue(Object value, double defaultValue) {
-		if (value != null) { return Convert.toDoubleValue(value); }
+		if (value != null) { return Converter.get().toDoubleValue(value); }
 		return defaultValue;
 	}
 
 	public static byte byteValue(Object value, byte defaultValue) {
-		if (value != null) { return Convert.toByteValue(value); }
+		if (value != null) { return Converter.get().toByteValue(value); }
 		return defaultValue;
 	}
 
 	public static char charValue(Object value, char defaultValue) {
-		if (value != null) { return Convert.toCharValue(value); }
+		if (value != null) { return Converter.get().toCharValue(value); }
 		return defaultValue;
 	}
 
 	public static String strValue(Object value, String defaultValue) {
-		if (value != null) { return Convert.toString(value); }
+		if (value != null) { return Converter.get().toString(value); }
 		return defaultValue;
 	}
 
 	public static String[] strValues(Object value, String[] defaultValue) {
-		if (value != null) { return Convert.toStringArray(value); }
+		if (value != null) { return Converter.get().toStringArray(value); }
 		return defaultValue;
 	}
 
@@ -57,7 +59,7 @@ public class ValuePlus {
 			String v = ((String) value).trim();
 			if ("1".equals(v) || "true".equalsIgnoreCase(v) || "yes".equalsIgnoreCase(v) || "on".equalsIgnoreCase(v)) { return true; }
 			if ("0".equals(v) || "false".equalsIgnoreCase(v) || "no".equalsIgnoreCase(v) || "off".equalsIgnoreCase(v)) { return false; }
-			return Convert.toBooleanValue(value);
+			return Converter.get().toBooleanValue(value);
 		}
 		return defaultValue;
 	}
@@ -77,5 +79,15 @@ public class ValuePlus {
 			lst.add(t);
 		}
 		return lst;
+	}
+
+	public static <T> T[] arrays(Collection<T> all, T[] newIds){
+		Iterator<T> iterator = all.iterator();
+		int i = 0;
+		while (iterator.hasNext()) {
+			newIds[i] = iterator.next();
+			i++;
+		}
+		return newIds;
 	}
 }

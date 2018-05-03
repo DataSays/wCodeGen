@@ -3,6 +3,8 @@ package org.dataagg.codegen.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.dataagg.util.lang.IStringHelper;
+
 import jodd.util.StringUtil;
 
 public class JCoder extends CodeGenHelper {
@@ -16,7 +18,7 @@ public class JCoder extends CodeGenHelper {
 		imports = new HashSet<>();
 	}
 
-	public static String fieldDef(String fieldType, String fieldName, Object defaultVal) {
+	public String fieldDef(String fieldType, String fieldName, Object defaultVal) {
 		if (fieldType.indexOf(".") > 0) {
 			fieldType = fieldType.substring(fieldType.lastIndexOf(".") + 1);
 		}
@@ -86,7 +88,7 @@ public class JCoder extends CodeGenHelper {
 				sb.append(" extends " + extendCls);
 			}
 		}
-		String code = joinSuffix(", ", interfaces);
+		String code = new CodeGenHelper().joinSuffix(", ", interfaces);
 		if (code.length() > 0) {
 			if (extendCls.indexOf(" implements ") > 0) {
 				sb.append(", " + code);

@@ -1,13 +1,15 @@
 package org.dataagg.codegen.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dataagg.util.props.PropDef;
 
 import jodd.util.StringUtil;
 
 /**
- *
  * Entity对象item定义
- *
+ * <p>
  * DataAgg
  */
 public class EntityItemDef extends PropDef {
@@ -19,6 +21,8 @@ public class EntityItemDef extends PropDef {
 	public static final int TYPE_List4One2Many = 25;//1:n的List<Pojo>类型
 	public static final int TYPE_List4Many2Many = 26;//n:n的List<Pojo>类型
 
+	public UIItemDef uiDef;//item的默认显示组件配置参数
+
 	public EntityItemDef() {
 		super();
 	}
@@ -29,6 +33,8 @@ public class EntityItemDef extends PropDef {
 
 	public EntityItemDef(String field, String title) {
 		super(field, title);
+		this.field = polishField(field);
+		addCfg("dbField", field);
 	}
 
 	//数据存储宽度/长度
@@ -125,10 +131,6 @@ public class EntityItemDef extends PropDef {
 		addCfg("relationTo", value);
 	}
 
-	public boolean isOne() {
-		return StringUtil.isBlank(getRelation());
-	}
-
 	public boolean isOne2One() {
 		return EntityDef.One2One.equals(getRelation());
 	}
@@ -140,25 +142,5 @@ public class EntityItemDef extends PropDef {
 	public boolean isMany2Many() {
 		String relation = getRelation();
 		return relation != null && relation != "" && !EntityDef.One2One.equals(relation) && !EntityDef.One2Many.equals(relation);
-	}
-
-	public boolean isCreateBy() {
-		return StringUtil.equals(getField(), "createBy");
-	}
-
-	public boolean isCreateDate() {
-		return StringUtil.equals(getField(), "createDate");
-	}
-
-	public boolean isUpdateBy() {
-		return StringUtil.equals(getField(), "updateBy");
-	}
-
-	public boolean isUpdateDate() {
-		return StringUtil.equals(getField(), "updateDate");
-	}
-
-	public boolean isDelFlag() {
-		return StringUtil.equals(getField(), "delFlag");
 	}
 }

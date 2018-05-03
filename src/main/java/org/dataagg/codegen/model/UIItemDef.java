@@ -1,17 +1,23 @@
 package org.dataagg.codegen.model;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import jodd.util.StringUtil;
+import org.dataagg.util.collection.ITreeNode;
 import org.dataagg.util.props.PropDef;
 
 /**
- *
  * UI定义明细项
- *
+ * <p>
  * DataAgg
  */
-public class UIItemDef extends PropDef {
+public class UIItemDef extends PropDef implements ITreeNode<UIItemDef, String> {
 	private static final long serialVersionUID = 120331974246389725L;
-	private Long masterId;
-	private String masterType;//主表类型
+	private String parentId;
+	private List<UIItemDef> items;
+	public List<ValidateDef> validates = new ArrayList<>();
 
 	//##CodeMerger.code:_CustomFields
 	public UIItemDef() {
@@ -26,52 +32,44 @@ public class UIItemDef extends PropDef {
 		super(field, title);
 	}
 
-	//关联字典名称
-	public String getDictName() {
-		return (String) getCfg("dictName");
-	}
-
-	public void setDictName(String value) {
-		addCfg("dictName", value);
-	}
-
-	public boolean isDefGroupItem() {
-		return super.getField().contains("[].");
-	}
-
-	public String getDefGroupName() {
-		String f = null;
-		if (isDefGroupItem()) {
-			f = super.getField();
-			f = f.substring(0, f.indexOf("[]."));
+	public String jsDefaultVal() {
+		if (defaultVal != null) {
+			return StringUtil.toPrettyString(defaultVal);
+		} else {
+			return null;
 		}
-		return f;
 	}
 
-	public String getDefGroupField() {
-		if (isDefGroupItem()) {
-			String f = super.getField();
-			return f.substring(f.indexOf("[].") + 3);
-		}
-		return null;
-	}
 	//##CodeMerger.code
 
 	//--------------------setter & getter-----------------------------------
-	public Long getMasterId() {
-		return masterId;
+	@Override
+	public String getId() {
+		return field;
 	}
 
-	public void setMasterId(Long masterId) {
-		this.masterId = masterId;
+	@Override
+	public void setId(String id) {
+		field = id;
 	}
 
-	public String getMasterType() {
-		return masterType;
+	@Override
+	public String getParentId() {
+		return parentId;
 	}
 
-	public void setMasterType(String masterType) {
-		this.masterType = masterType;
+	@Override
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
 	}
 
+	@Override
+	public List<UIItemDef> getItems() {
+		return items;
+	}
+
+	@Override
+	public void setItems(List<UIItemDef> items) {
+		this.items = items;
+	}
 }

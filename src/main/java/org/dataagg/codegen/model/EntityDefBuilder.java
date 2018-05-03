@@ -1,5 +1,7 @@
 package org.dataagg.codegen.model;
 
+import static org.dataagg.codegen.util.ElementUI.*;
+
 import org.dataagg.codegen.base.ADefBuilderBase;
 import org.dataagg.util.collection.StrObj;
 
@@ -9,27 +11,35 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		super(m);
 	}
 
-	public static EntityDefBuilder newEntityDef(String project, String name, String pkg, String entityCls, String comment) {
-		EntityDef entityDef = new EntityDef(name, entityCls);
+	public static EntityDefBuilder newEntityDef(String project, String applictionPkg, String name, String pkg, String entityCls, String comment) {
+		EntityDef entityDef = new EntityDef(name, applictionPkg, entityCls);
 		entityDef.common(project, pkg, comment);
 		EntityDefBuilder builder = new EntityDefBuilder(entityDef);
 		return builder;
 	}
 
-	public static EntityDefBuilder newParentDef(String project, String pkg, String entityCls, String comment) {
-		EntityDef entityDef = new EntityDef(entityCls, entityCls);
+	public static EntityDefBuilder newParentDef(String project, String applictionPkg, String pkg, String entityCls, String comment) {
+		EntityDef entityDef = new EntityDef(entityCls, applictionPkg, entityCls);
 		entityDef.common(project, pkg, comment);
 		EntityDefBuilder builder = new EntityDefBuilder(entityDef);
 		return builder;
 	}
 
-	public EntityDefBuilder isTree() {
+	/**
+	 * 树状数据结构
+	 * @param idField 主键字段名
+	 * @param parentField 父节点关联字段名
+	 * @return
+	 */
+	public EntityDefBuilder isTree(String idField, String parentField) {
 		main.addCfg("isTree", true);
+		main.addCfg("idField", idField);
+		main.addCfg("parentField", parentField);
 		return this;
 	}
 
 	public EntityDefBuilder isMasterDetail(EntityDefBuilder detail) {
-		main.addCfg("detailCls", detail.main.getEntityCls());
+		main.addCfg("detailCls", detail.main.entityCls);
 		detail.main.addCfg("isDetail", true);
 		return this;
 	}
@@ -53,7 +63,7 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		main.addCfg("isParentDef", true);
 		EntityDef parent = parentBuilder.main;
 		for (EntityItemDef item : parent.getDefs()) {
-			item.addCfg("parentDef", parent.getEntityCls());
+			item.addCfg("parentDef", parent.entityCls);
 			main.addPropDef(item);
 		}
 		return this;
@@ -64,11 +74,23 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		return this;
 	}
 
-	public EntityDefBuilder addLongId() {
-		EntityItemDef item = main.addPkDef("id", "ID", "Long");
+	public EntityDefBuilder addLongPk() {
+		return addLongPk("id", 16);
+	}
+
+	public EntityDefBuilder addLongPk(String key, int width) {
+		EntityItemDef item = main.addPkDef(key, "ID", "Long");
 		item.addCfg("itemType", "LongId");
 		item.addCfg("dataType", "BIGINT");
-		item.addCfg("width", 16);
+		item.addCfg("width", width);
+		return this;
+	}
+
+	public EntityDefBuilder addStrPk(String key, int width) {
+		EntityItemDef item = main.addPkDef(key, "ID", "String");
+		item.addCfg("itemType", "StringId");
+		item.addCfg("dataType", "VARCHAR");
+		item.addCfg("width", width);
 		return this;
 	}
 
@@ -77,6 +99,7 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		item.addCfg("itemType", "String");
 		item.addCfg("dataType", "VARCHAR");
 		item.addCfg("width", 200);
+		ui(create(TYPE_Text));
 		return this;
 	}
 
@@ -99,19 +122,62 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 	public EntityDefBuilder addLongText(String field, String comment) {
 		EntityItemDef item = main.addPropDef(field, comment, "String");
 		item.addCfg("itemType", "LongText");
-		item.addCfg("dataType", "LONGTEXT");
+		item.addCfg("dataType", "VARCHAR");
+		ui(create(TYPE_TextArea, "_colProfile", "1"));
 		return this;
 	}
 
 	public EntityDefBuilder addDate(String field, String comment) {
 		EntityItemDef item = main.addPropDef(field, comment, "java.util.Date");
 		item.addCfg("itemType", "Date");
-		item.addCfg("dataType", "DATETIME");
+		item.addCfg("dataType", "TIMESTAMP");
+		ui(create(TYPE_DateTime));
+		return this;
+	}
+
+	/**
+	 * 日期范围
+	 *
+	 * @param field1
+	 * @param field2
+	 * @param comment1
+	 * @param comment2
+	 * @return
+	 */
+	public EntityDefBuilder addDateRange(String field1, String field2, String comment1, String comment2) {
+		addDate(field1, comment1);
+		ui(create(TYPE_Date));
+		addDate(field2, comment2);
+		ui(create(TYPE_Date));
+		return this;
+	}
+
+	/**
+	 * 时间范围
+	 *
+	 * @param field1
+	 * @param field2
+	 * @param comment1
+	 * @param comment2
+	 * @return
+	 */
+	public EntityDefBuilder addTimeRange(String field1, String field2, String comment1, String comment2) {
+		addDate(field1, comment1);
+		ui(create(TYPE_DateTime));
+		addDate(field2, comment2);
+		ui(create(TYPE_DateTime));
 		return this;
 	}
 
 	public EntityDefBuilder addFile(String field, String comment) {
 		addString(field, comment).width(64);
+		ui(custom("upload-file", ":grouping", "entity." + field, "_colProfile", "1"));
+		return this;
+	}
+
+	//排序字段
+	public EntityDefBuilder addSort(String comment) {
+		addInt("sort", comment).defaultVal(10).notNull().ui(create(TYPE_InputNumber, ":min", "1"));
 		return this;
 	}
 
@@ -127,7 +193,7 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 	public EntityDefBuilder addBoolean(String field, String comment) {
 		EntityItemDef item = main.addPropDef(field, comment, "Boolean");
 		item.addCfg("itemType", "Boolean");
-		item.addCfg("dataType", "TINYINT");
+		item.addCfg("dataType", "SMALLINT");
 		item.addCfg("width", 1);
 		return this;
 	}
@@ -164,12 +230,21 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		return this;
 	}
 
+	public EntityDefBuilder addStrKey(String field, String comment) {
+		EntityItemDef item = main.addPropDef(field, comment, "String");
+		item.addCfg("itemType", "StringKey");
+		item.addCfg("dataType", "VARCHAR");
+		item.addCfg("width", 30);
+		return this;
+	}
+
 	public EntityDefBuilder addStrObj(String field, String comment) {
 		addLongText(field, comment);
 		EntityItemDef item = lastItem();
-		item.setValCls(StrObj.class.getName());
+		item.valCls = StrObj.class.getName();
 		item.addCfg("itemType", "StrObj");
-		item.addCfg("dataType", "LONGTEXT");
+		item.addCfg("dataType", "VARCHAR");
+		item.addCfg("width", 30000);
 		return this;
 	}
 
@@ -182,12 +257,25 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		return this;
 	}
 
+	//删除标识
+	public EntityDefBuilder addDelFlag(String comment) {
+		addFlag("delFlag", comment).defaultVal("0").notNull().ui(create(TYPE_Switch, "active-text", "未删除", "inactive-text", "已删除"));
+		return this;
+	}
+
+	//启停标识
+	public EntityDefBuilder addEnableFlag(String comment) {
+		addBoolean("enableFlag", comment).defaultVal(true).notNull().ui(create(TYPE_Switch, "active-text", "启用", "inactive-text", "停用"));
+		return this;
+	}
+
 	public EntityDefBuilder addDict(String field, String dictName, String comment) {
 		addString(field, comment);
 		EntityItemDef item = lastItem();
 		item.addCfg("itemType", "Dict");
 		item.addCfg("dictName", dictName);
 		item.addCfg("width", 50);
+		ui(select(dictName));
 		return this;
 	}
 
@@ -208,7 +296,7 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 
 	public EntityDefBuilder defaultVal(Object defaultVal) {
 		EntityItemDef item = lastItem();
-		item.setDefaultVal(defaultVal);
+		item.defaultVal = defaultVal;
 		return this;
 	}
 
@@ -225,8 +313,20 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 	}
 
 	public EntityDefBuilder addOne(String field, String comment, String cls) {
-		addLongKey(field + "Id", field + "Id");
-		main.addOne2OneDef(field, comment, cls, field + "Id");
+		return addOne(field + "Id", field + "Id", field, comment, cls);
+	}
+
+	public EntityDefBuilder addOne(String fkDbField, String fkJavafiled, String field, String comment, String cls) {
+		addLongKey(fkDbField, fkDbField);
+		main.addOne2OneDef(field, comment, cls, fkDbField, fkJavafiled);
+		EntityItemDef item = lastItem();
+		item.addCfg("itemType", "One");
+		return this;
+	}
+
+	public EntityDefBuilder addStrOne(String fkDbField, String fkJavafiled, String field, String comment, String cls) {
+		addStrKey(fkDbField, fkDbField);
+		main.addOne2OneDef(field, comment, cls, fkDbField, fkJavafiled);
 		EntityItemDef item = lastItem();
 		item.addCfg("itemType", "One");
 		return this;
@@ -243,6 +343,22 @@ public class EntityDefBuilder extends ADefBuilderBase<EntityDef, EntityItemDef> 
 		main.addMany2ManyDef(cls, field, comment, relation, from, to);
 		EntityItemDef item = lastItem();
 		item.addCfg("itemType", "Many2Many");
+		return this;
+	}
+
+	/**
+	 * 配置默认使用UI组件显示字段时的组件参数，可一次设置多个，使用时默认使用第一个，也可指定使用第几套方案
+	 *
+	 * @param uiDef
+	 * @return
+	 */
+	public EntityDefBuilder ui(UIItemDef uiDef) {
+		EntityItemDef item = lastItem();
+		if (uiDef != null) {
+			uiDef.field = item.field;
+			uiDef.title = item.title;
+			item.uiDef = uiDef;
+		}
 		return this;
 	}
 }
