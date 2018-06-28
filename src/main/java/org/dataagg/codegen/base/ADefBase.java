@@ -115,6 +115,10 @@ public abstract class ADefBase<I extends PropDef> implements PropSet<I>, IString
 		this.defs = defs;
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	public StrObj getCfg() {
 		return cfg;
 	}

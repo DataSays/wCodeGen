@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 import org.dataagg.util.text.YamlUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -35,15 +35,15 @@ public class YamlUtilTest {
 
 	@Test
 	public void load() throws Exception {
-		WMap data = YamlUtil.load(codes);
+		StrObj data = YamlUtil.load(codes);
 		assertNotNull(data);
 		assertNotNull(data.get("springBoot"));
-		WMap map = data.map("springBoot");
+		StrObj map = data.mapVal("springBoot");
 		assertNotNull(map);
-		assertEquals(4, map.strings("plugins").length);
-		assertEquals("app.jar", map.getString("archiveName"));
-		assertEquals(1, map.strings("deps").length);
-		assertEquals(3, map.map("config").keySet().size());
+		assertEquals(64, map.strVal("plugins").length());
+		assertEquals("app.jar", map.strVal("archiveName"));
+		assertEquals(1, map.listVal("deps", StrObj.class).size());
+		assertEquals(3, map.mapVal("config").keySet().size());
 	}
 
 	@Test
@@ -78,28 +78,28 @@ public class YamlUtilTest {
 
 	@Test
 	public void addAll() throws Exception {
-		WMap data = YamlUtil.eval(codes, null);
-		WMap eurekaServer = data.map("eurekaServer");
-		assertEquals(1, eurekaServer.map("config").keySet().size());
-		WMap client = eurekaServer.map("config").map("eureka").map("client");
+		StrObj data = YamlUtil.eval(codes, null);
+		StrObj eurekaServer = data.mapVal("eurekaServer");
+		assertEquals(1, eurekaServer.mapVal("config").keySet().size());
+		StrObj client = eurekaServer.mapVal("config").mapVal("eureka").mapVal("client");
 		assertNotNull(client);
 		assertEquals(3, client.keySet().size());
 		assertNotNull(client.get("server"));
 		assertNull(client.get("serviceUrl"));
 
-		WMap eurekaClient = data.map("eurekaClient");
-		assertEquals(1, eurekaClient.map("config").keySet().size());
-		client = eurekaClient.map("config").map("eureka").map("client");
+		StrObj eurekaClient = data.mapVal("eurekaClient");
+		assertEquals(1, eurekaClient.mapVal("config").keySet().size());
+		client = eurekaClient.mapVal("config").mapVal("eureka").mapVal("client");
 		assertNotNull(client);
 		assertEquals(1, client.keySet().size());
 		assertNull(client.get("server"));
 		assertNotNull(client.get("serviceUrl"));
 
 		eurekaServer.addAll(eurekaClient);
-		assertEquals(1, eurekaServer.map("config").keySet().size());
-		client = eurekaServer.map("config").map("eureka").map("client");
+		assertEquals(1, eurekaServer.mapVal("config").keySet().size());
+		client = eurekaServer.mapVal("config").mapVal("eureka").mapVal("client");
 		assertNotNull(client);
-		assertEquals(4, client.keySet().size());
+		assertEquals(3, client.keySet().size());
 		assertNotNull(client.get("server"));
 		assertNotNull(client.get("serviceUrl"));
 	}
@@ -111,13 +111,13 @@ public class YamlUtilTest {
 		String[] allProjects = { "account", "api-gateway", "security", "service-center" };
 		for (String project : allProjects) {
 			try {
-				WMap props = new WMap();
+				StrObj props = new StrObj();
 				props.put("ACCOUNT_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
 				props.put("CONFIG_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
 				props.put("MONGODB_PASSWORD", "YFzCAfocMInyJ5YaO805");
 
-				WMap projectData = new WMap();
-				WMap tmpData = null;
+				StrObj projectData = new StrObj();
+				StrObj tmpData = null;
 				String cfgFile = null;
 				cfgFile = rootDir + project + "\\src\\main\\resources\\bootstrap.yml";
 				if (new File(cfgFile).exists()) {
@@ -150,19 +150,19 @@ public class YamlUtilTest {
 
 	@Test
 	public void parsePiggyMetricsYml() {
-		String rootDir = "e:\\temp\\PiggyMetrics\\";
+		String rootDir = "e:\\work\\DataAgg\\PiggyMetrics\\";
 		String outDir = "e:\\work\\DataAgg\\DAFramework\\codegen\\PiggyMetrics\\";
 		String[] allProjects = { "account-service", "notification-service", "registry", "auth-service", "statistics-service", "gateway" };
 		String configDir = rootDir + "config\\src\\main\\resources\\shared\\";
 		for (String project : allProjects) {
 			try {
-				WMap props = new WMap();
+				StrObj props = new StrObj();
 				props.put("ACCOUNT_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
 				props.put("CONFIG_SERVICE_PASSWORD", "YFzCAfocMInyJ5YaO805");
 				props.put("MONGODB_PASSWORD", "YFzCAfocMInyJ5YaO805");
 
-				WMap projectData = YamlUtil.evalYml(configDir + "application.yml", props);
-				WMap tmpData = YamlUtil.evalYml(configDir + project + ".yml", props);
+				StrObj projectData = YamlUtil.evalYml(configDir + "application.yml", props);
+				StrObj tmpData = YamlUtil.evalYml(configDir + project + ".yml", props);
 				projectData.addAll(tmpData);
 				String cfgFile = null;
 				cfgFile = rootDir + project + "\\src\\main\\resources\\bootstrap.yml";

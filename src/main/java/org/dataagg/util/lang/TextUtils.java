@@ -12,10 +12,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -657,5 +659,25 @@ public class TextUtils {
 
 	public static String stringNO(Number no, int bit) {
 		return String.format("%0" + bit + "d", no);
+	}
+	/**
+	 * 移除重复部分,并排序
+	 * @param text
+	 * @param separator
+	 * @return
+	 */
+	public static String rmDuplicate(String text, String separator) {
+		String[] all = StringUtil.split(text, separator);
+		Set<String> idsMap = new HashSet<>();
+		if (all != null) {
+			for (String a : all) {
+				if (a.trim().length() > 0 && !"null".equals(a.trim())) {
+					idsMap.add(a.trim());
+				}
+			}
+		}
+		all = idsMap.toArray(new String[] {});
+		Arrays.sort(all);
+		return StringUtil.join(all, separator);
 	}
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dataagg.codegen.util.YmlGenHelper;
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 
 /**
  * Created by watano on 2017/3/4.
@@ -25,28 +25,29 @@ public class GradleProject {
 
 	public GradleProject() {}
 
-	public GradleProject(WMap data) {
+	public GradleProject(StrObj data) {
 		this();
 		fill(data);
 	}
 
-	public void fill(WMap data) {
-		group = data.getString("group");
-		project = data.getString("project");
-		version = data.getString("version");
-		archiveName = data.getString("archiveName");
-		plugins = data.stringsNoDuplicate("plugins");
-		deps = data.stringsNoDuplicate("deps");
-		dependencyManagement = data.stringsNoDuplicate("dependencyManagement");
-		description = data.getString("description");
-		applyFrom = data.getString("applyFrom");
-		fatJar = data.getString("fatJar");
-		ExtCodes = data.getString("ExtCodes");
+	@SuppressWarnings("unchecked")
+	public void fill(StrObj data) {
+		group = data.strVal("group");
+		project = data.strVal("project");
+		version = data.strVal("version");
+		archiveName = data.strVal("archiveName");
+		plugins = data.strArrayVal("plugins");
+		deps = data.strArrayVal("deps");
+		dependencyManagement = data.strArrayVal("dependencyManagement");
+		description = data.strVal("description");
+		applyFrom = data.strVal("applyFrom");
+		fatJar = data.strVal("fatJar");
+		ExtCodes = data.strVal("ExtCodes");
 		if (data.has("GradleJavaTask")) {
-			List<String[]> lstGradleJavaTasks = new ArrayList<>();
-			String[][] gradleJavaTasks = data.getArray("GradleJavaTask", String[].class);
-			for (String[] gradleJavaTask : gradleJavaTasks) {
-				lstGradleJavaTasks.add(gradleJavaTask);
+			List<List<String>> lstGradleJavaTasks = new ArrayList<>();
+			List<?> gradleJavaTasks = data.listVal("GradleJavaTask", List.class);
+			for (Object gradleJavaTask : gradleJavaTasks) {
+				lstGradleJavaTasks.add((List<String>) gradleJavaTask);
 			}
 			GradleJavaTask = lstGradleJavaTasks.toArray(new String[][] {});
 		}

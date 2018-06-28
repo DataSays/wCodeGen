@@ -1,6 +1,6 @@
 package org.dataagg.codegen.util;
 
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 import org.dataagg.util.text.YamlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AYmlCodeGen {
 	private static final Logger LOG = LoggerFactory.getLogger(AYmlCodeGen.class);
-	protected WMap model = null;
-	protected WMap data = null;
-	protected WMap props = null;
+	protected StrObj model = null;
+	protected StrObj data = null;
+	protected StrObj props = null;
 	//gen code root dir
 	protected String workDir = null;
 	//gen profile
@@ -21,23 +21,23 @@ public abstract class AYmlCodeGen {
 	protected String genType = null;
 
 	public void init() {
-		model = new WMap();
+		model = new StrObj();
 	}
 
 	public void load(String dataFile) {
 		try {
 			//load data yml files, the "props" is the local vars;
 			data = YamlUtil.evalYml(dataFile, "props");
-			model.setv("data", data);
-			props = data.map("props");
+			model.put("data", data);
+			props = data.mapVal("props");
 			//gen code root dir
-			workDir = data.getString("WorkDir", ".");
+			workDir = data.strVal("WorkDir", ".");
 			model.put("WorkDir", workDir);
 			//gen type
-			genType = data.getString("GenType", "gradle");
+			genType = data.strVal("GenType", "gradle");
 			model.put("GenType", genType);
 			//gen profile
-			profiles = data.getArray("Profile", String.class);
+			profiles = data.strArrayVal("Profile");
 			model.put("Profile", profiles);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);

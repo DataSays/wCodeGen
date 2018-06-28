@@ -2,13 +2,11 @@ package org.dataagg.codegen.util;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AccessibleObject;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import jodd.util.template.StringTemplateParser;
 import org.dataagg.util.FindFileUtil;
 import org.dataagg.util.WJsonUtils;
 import org.dataagg.util.collection.StrMap;
@@ -20,9 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import jodd.bean.BeanUtilBean;
 import jodd.io.FileUtil;
-import jodd.paramo.MethodParameter;
-import jodd.paramo.Paramo;
 import jodd.util.StringUtil;
+import jodd.util.template.StringTemplateParser;
 
 public class CodeGenUtils {
 	private static final Logger LOG = LoggerFactory.getLogger(CodeGenUtils.class);
@@ -188,36 +185,6 @@ public class CodeGenUtils {
 	public static <T> T[] sort(T[] array) {
 		Arrays.sort(array, (o1, o2) -> o1.toString().compareTo(o2.toString()));
 		return array;
-	}
-
-	public static String[] getMethodArgNames(Class<?> clazz, AccessibleObject methd) {
-		try {
-			MethodParameter[] mp = Paramo.resolveParameters(methd);
-			String[] paramNames = new String[mp.length];
-			for (int i = 0; i < mp.length; i++) {
-				paramNames[i] = mp[i].getName();
-			}
-			//			ClassPool pool = ClassPool.getDefault();
-			//			CtClass cc = pool.get(clazz.getName());
-			//			CtMethod cm = cc.getDeclaredMethod(methd);
-			//
-			//			// 使用javaassist的反射方法获取方法的参数名
-			//			MethodInfo methodInfo = cm.getMethodInfo();
-			//			CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-			//			LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute.getAttribute(LocalVariableAttribute.tag);
-			//			if (attr == null) {
-			//				// exception
-			//			}
-			//			String[] paramNames = new String[cm.getParameterTypes().length];
-			//			int pos = Modifier.isStatic(cm.getModifiers()) ? 0 : 1;
-			//			for (int i = 0; i < paramNames.length; i++) {
-			//				paramNames[i] = attr.variableName(i + pos);
-			//			}
-			return paramNames;
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
-		}
-		return null;
 	}
 
 	public static String simpleClsText(String pkg, String fullCls) {

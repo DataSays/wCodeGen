@@ -125,4 +125,42 @@ public interface ITreeNode<C extends ITreeNode<C, I>, I> extends IEntity<I> {
 		LOG.info("广度优先遍历:" + sb.toString());
 		return sb.toString();
 	}
+
+	public default List<ITreeNode<C,I>> search(I i){
+		List<ITreeNode<C,I>> list = new ArrayList<>();
+		if(getId().equals(i)){
+			list.add(this);
+			return list;
+		}
+		if(getItems() != null){
+			for(ITreeNode<C,I> item:getItems()){
+				List<ITreeNode<C,I>> subList = item.search(i);
+				if(subList.size()>0){
+					list.add(this);
+					list.addAll(subList);
+					return list;
+				}
+			}
+		}
+		return list;
+	}
+
+	public default List<I> searchIds(I i){
+		List<I> list = new ArrayList<>();
+		if(getId().equals(i)){
+			list.add(this.getId());
+			return list;
+		}
+		if(getItems() != null){
+			for(ITreeNode<C,I> item:getItems()){
+				List<I> subList = item.searchIds(i);
+				if(subList.size()>0){
+					list.add(this.getId());
+					list.addAll(subList);
+					return list;
+				}
+			}
+		}
+		return list;
+	}
 }

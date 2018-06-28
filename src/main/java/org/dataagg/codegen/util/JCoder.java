@@ -3,6 +3,7 @@ package org.dataagg.codegen.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.dataagg.codegen.model.ModelFieldDef;
 import org.dataagg.util.lang.IStringHelper;
 
 import jodd.util.StringUtil;
@@ -16,6 +17,13 @@ public class JCoder extends CodeGenHelper {
 		codeMerger = new JCodeMerger(javaFile);
 		codeMerger.setMergeCode(mergeCode);
 		imports = new HashSet<>();
+	}
+
+	public void appendFieldDef(ModelFieldDef fDef) {
+		if (fDef.comment != null && fDef.comment.trim().length() > 0) {
+			appendln2(lineBreakComment(fDef.comment.trim()));
+		}
+		appendln2(fieldDef(fDef.cls, fDef.name, fDef.defaultVal));
 	}
 
 	public String fieldDef(String fieldType, String fieldName, Object defaultVal) {

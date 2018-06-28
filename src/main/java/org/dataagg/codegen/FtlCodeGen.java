@@ -4,12 +4,10 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.dataagg.util.FindFileUtil;
 import org.dataagg.util.WJsonUtils;
 import org.dataagg.util.freemarker.FreemarkerHelper;
-import org.dataagg.util.text.WCfg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,26 +121,6 @@ public class FtlCodeGen {
 			System.exit(0);
 		} else {
 			gen(cmd);
-		}
-	}
-
-	public static void main(String[] args) {
-		FtlCodeGen ftlCodeGen = new FtlCodeGen();
-		ftlCodeGen.init(WCfg.getValue("FtlCodeGen.commonDir"), WCfg.getValue("FtlCodeGen.sourceDir"), WCfg.getValue("FtlCodeGen.targetDir"));
-		System.out.println("updateAll up:re-gen all files on source dir.");
-		System.out.println("exit  ex    :Exit this app.");
-		if (args != null && args.length > 0) {
-			ftlCodeGen.dispatch(args[0]);
-		}
-
-		try {
-			Scanner s = new Scanner(System.in);
-			while (s.hasNext()) {
-				ftlCodeGen.dispatch(s.next());
-			}
-			s.close();
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
 		}
 	}
 }

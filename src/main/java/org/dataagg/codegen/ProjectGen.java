@@ -2,14 +2,12 @@ package org.dataagg.codegen;
 
 import static jodd.util.StringUtil.capitalize;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.dataagg.codegen.model.GradleProject;
 import org.dataagg.codegen.util.AYmlCodeGen;
-import org.dataagg.codegen.util.JCoder;
 import org.dataagg.codegen.util.YmlGenHelper;
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 import org.dataagg.util.text.MapTplHelper;
 import org.dataagg.util.text.YamlUtil;
 import org.slf4j.Logger;
@@ -40,30 +38,30 @@ public class ProjectGen extends AYmlCodeGen {
 			gradleGen.set("GenType", "gradle");
 			gradleGen.inlineMap("props");
 			gradleGen.comment(null);
-			String appCode = props.str2("appCode");
+			String appCode = props.strVal("appCode", "").trim();
 			GradleProject mainProject = new GradleProject(data);
 			mainProject.write(gradleGen);
 
 			if (data.has("subProjects")) {
 				gradleGen.beginMap("subProjects");
-				WMap subProjects = data.getAs("subProjects", WMap.class);
+				StrObj subProjects = data.mapVal("subProjects");
 				//gen docker-compose.yml
-				WMap dockerServices = new WMap();
+				StrObj dockerServices = new StrObj();
 				for (String subProjectName : subProjects.keySet()) {
-					WMap subProject = subProjects.getAs(subProjectName, WMap.class);
-					props.setv("_SubProject_", subProjectName);
-					props.setv("_SubProjectPort_", subProject.getString("ports", ""));
-					WMap allComponents = YamlUtil.evalYml(data.getString("Components", "./components.yml"), props);
+					StrObj subProject = subProjects.mapVal(subProjectName);
+					props.put("_SubProject_", subProjectName);
+					props.put("_SubProjectPort_", subProject.strVal("ports", ""));
+					StrObj allComponents = YamlUtil.evalYml(data.strVal("Components", "./components.yml"), props);
 					//merge Components into subProject.
-					String[] thisComponents = subProject.getArray("components", String.class, new String[] {});
-					WMap componetData = new WMap();
+					String[] thisComponents = subProject.strArrayVal("components");
+					StrObj componetData = new StrObj();
 					for (String componentName : thisComponents) {
-						WMap component;
+						StrObj component;
 						if (componentName.startsWith(":")) {
-							component = subProjects.getAs(componentName.substring(1), WMap.class);
+							component = subProjects.mapVal(componentName.substring(1));
 							component.put("deps", new String[] { "compile project(':" + componentName.substring(1) + "')" });
 						} else {
-							component = allComponents.getAs(componentName, WMap.class);
+							component = allComponents.mapVal(componentName);
 						}
 						if (component == null) {
 							LOG.error("can't find the component:" + componentName);
@@ -78,7 +76,7 @@ public class ProjectGen extends AYmlCodeGen {
 					//gen gradle.build for sub project
 					subProjectData.project = null;
 					if (subProjectData.version == null) {
-						subProjectData.version = data.getString("version");
+						subProjectData.version = data.strVal("version");
 					}
 					if (subProjectData.archiveName == null) {
 						subProjectData.archiveName = subProjectName + ".jar";
@@ -100,24 +98,24 @@ public class ProjectGen extends AYmlCodeGen {
 						componetData.remove("docker");
 					}
 
-					if (componetData.map("config") != null && componetData.map("config").size() > 0) {
-						YamlUtil.write(componetData.map("config"), workDir + "/" + subProjectName + "/src/main/resources/application.yml", 2);
+					if (componetData.has("config") && componetData.mapVal("config").size() > 0) {
+						YamlUtil.write(componetData.mapVal("config"), workDir + "/" + subProjectName + "/src/main/resources/application.yml", 2);
 					}
 
-					if (componetData.map("testConfig") != null && componetData.map("testConfig").size() > 0) {
-						YamlUtil.write(componetData.map("testConfig"), workDir + "/" + subProjectName + "/src/test/resources/bootstrap.yml", 2);
+					if (componetData.has("testConfig") && componetData.mapVal("testConfig").size() > 0) {
+						YamlUtil.write(componetData.mapVal("testConfig"), workDir + "/" + subProjectName + "/src/test/resources/bootstrap.yml", 2);
 					}
 
-					if (componetData.map("docker") != null && componetData.map("docker").size() > 0) {
+					if (componetData.has("docker") && componetData.mapVal("docker").size() > 0) {
 						//gen docker-compose.yml
-						dockerServices.put(subProjectName, componetData.map("docker"));
+						dockerServices.put(subProjectName, componetData.mapVal("docker"));
 					}
 
 					//gen config for sub projects
 					String srcPath = workDir + "/" + subProjectName + "/src";
 					if (ArraysUtil.contains(thisComponents, "springBoot")) {
-						YamlUtil.write(componetData.map("config"), srcPath + "/main/resources/application.yml", 2);
-						YamlUtil.write(componetData.map("testConfig"), srcPath + "/test/resources/bootstrap.yml", 2);
+						YamlUtil.write(componetData.mapVal("config"), srcPath + "/main/resources/application.yml", 2);
+						YamlUtil.write(componetData.mapVal("testConfig"), srcPath + "/test/resources/bootstrap.yml", 2);
 
 						//gen docker-compose.yml
 						//						dockerServices.put(subProjectName, componetData.map("docker"));
@@ -130,7 +128,7 @@ public class ProjectGen extends AYmlCodeGen {
 
 					//主项目生成对应的
 					if (appCode.equals(subProjectName)) {
-						String appPkg = props.str2("appPkg");
+						String appPkg = props.strVal("appPkg", "").trim();
 						appPkg = StringUtil.replace(appPkg, ".", "/");
 						MapTplHelper mapTplHelper = new MapTplHelper();
 						mapTplHelper.initModel(model);

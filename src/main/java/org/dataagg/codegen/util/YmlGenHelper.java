@@ -1,9 +1,10 @@
 package org.dataagg.codegen.util;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 
 /**
  * Created by watano on 2017/2/7.
@@ -111,11 +112,21 @@ public class YmlGenHelper extends CodeGenHelper {
 		return this;
 	}
 
-	public YmlGenHelper addSetData(String key, List<?> data) {
-		return addSetData(key, WMap.convert(data));
+	public <T> YmlGenHelper addSetData(String key, List<T> data) {
+		Set<T> data2 = new HashSet<>();
+		if (data != null) {
+			data2.addAll(data);
+		}
+		return addSetData(key, data2);
 	}
 
 	public YmlGenHelper addSetData2(String key, Object... data) {
-		return addSetData(key, WMap.convert(data));
+		Set<Object> data2 = new HashSet<>();
+		if (data != null) {
+			for (Object o : data) {
+				data2.add(o);
+			}
+		}
+		return addSetData(key, data2);
 	}
 }

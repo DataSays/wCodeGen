@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 
@@ -20,26 +21,25 @@ import jodd.util.StringUtil;
 public class YamlUtil {
 	private static final Logger LOG = LoggerFactory.getLogger(YamlUtil.class);
 
-	public static WMap load(String codes) {
+	public static StrObj load(String codes) {
 		Yaml yml = new Yaml();
-		@SuppressWarnings("unchecked")
-		Map<String, Object> data = yml.loadAs(codes, Map.class);
-		return new WMap(data);
+		StrObj data = yml.loadAs(codes, StrObj.class);
+		return data;
 	}
 
-	public static WMap eval(String codes, WMap propsObj) {
+	public static StrObj eval(String codes, StrObj propsObj) {
 		if (propsObj != null) {
 			for (String k : propsObj.keySet()) {
-				codes = StringUtil.replace(codes, "${" + k + "}", propsObj.getString(k));
+				codes = StringUtil.replace(codes, "${" + k + "}", propsObj.strVal(k));
 			}
 		}
 		return load(codes);
 	}
 
-	public static WMap evalSelf(String codes, String propsField) {
+	public static StrObj evalSelf(String codes, String propsField) {
 		if (propsField != null) {
-			WMap data = load(codes);
-			WMap propsObj = data.getAs(propsField, WMap.class);
+			StrObj data = load(codes);
+			StrObj propsObj = data.mapVal(propsField);
 			if (propsObj != null) {
 				return eval(codes, propsObj);
 			} else {
@@ -49,22 +49,38 @@ public class YamlUtil {
 		return load(codes);
 	}
 
-	public static WMap evalYml(String file, String propsField) throws IOException {
+	public static StrObj evalYml(String file, String propsField) throws IOException {
 		String codes = FileUtil.readString(file, "utf-8");
 		return evalSelf(codes, propsField);
 	}
 
-	public static WMap evalYml(String file, WMap propsObj) throws IOException {
+	public static StrObj evalYml(String file, StrObj propsObj) throws IOException {
 		String codes = FileUtil.readString(file, "utf-8");
 		return eval(codes, propsObj);
 	}
 
-	public static void write(WMap data, String file) {
+	public static StrObj readFile(String file) {
+		try {
+			String codes = FileUtil.readString(file, "utf-8");
+			return load(codes);
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return null;
+	}
+
+	public static void write(StrObj data, String file) {
 		write(data, file, 0);
 	}
 
-	public static void write(WMap data, String file, int flowStyle) {
-		Yaml yml = new Yaml();
+	public static void write(StrObj data, String file, int flowStyle) {
+		DumperOptions dp = new DumperOptions();
+		//dp.setDefaultScalarStyle(ScalarStyle.SINGLE_QUOTED);
+		//		dp.setPrettyFlow(true);
+		//dp.setCanonical(true);
+		dp.setSplitLines(false);
+		dp.setWidth(200);
+		Yaml yml = new Yaml(dp);
 		if (data == null) { return; }
 		try {
 			File outFile = new File(file);

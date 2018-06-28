@@ -4,14 +4,16 @@ Profile: []
 props: {}
 group: org.dataagg
 project: wCodeGen
-version: "1.2"
+version: "1.4"
 plugins: [java,eclipse,idea,"com.github.ben-manes.versions' version '0.17.0"]
 description: DataAgg wCodeGen
 deps:
-  - compile 'org.slf4j:slf4j-api:1.7.22'
-  - compile 'org.slf4j:slf4j-log4j12:1.7.22'
-  - compile 'org.slf4j:jcl-over-slf4j:1.7.22'
-  - compile 'org.slf4j:jul-to-slf4j:1.7.22'
+  - compile 'org.slf4j:slf4j-api:1.7.25'
+  - compile 'org.slf4j:jcl-over-slf4j:1.7.25'
+  - compile 'org.slf4j:jul-to-slf4j:1.7.25'
+  - compile 'org.apache.logging.log4j:log4j-api:2.11.0'
+  - compile 'org.apache.logging.log4j:log4j-core:2.11.0'
+  - compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
   - compile 'org.jodd:jodd-core:3.8.1'
   - compile 'org.jodd:jodd-bean:3.8.1'
   - compile 'org.jodd:jodd-props:3.8.1'
@@ -22,7 +24,6 @@ deps:
   - compile 'com.squareup.retrofit2:retrofit:2.1.0'
   - compile 'com.squareup.retrofit2:converter-gson:2.1.0'
   - compile 'org.freemarker:freemarker:2.3.27-incubating'
-  - compile 'org.nutz:nutz:1.r.63'
   - compile 'org.yaml:snakeyaml:1.19'
   - testCompile 'junit:junit:4.12'
 fatJar: org.dataagg.codegen.FtlCodeGen2

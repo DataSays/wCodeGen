@@ -44,6 +44,12 @@ public class StrObj extends LinkedHashMap<String, Object> implements ITypeHelper
 		addAll(allkv);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public StrObj(Map map) {
+		super();
+		putAll(map);
+	}
+
 	public void addAll(Object... allkv) {
 		if (allkv != null && allkv.length % 2 == 0) {
 			for (int i = 0; i + 1 < allkv.length; i += 2) {
@@ -64,6 +70,14 @@ public class StrObj extends LinkedHashMap<String, Object> implements ITypeHelper
 			return;
 		}
 		put(key, value);
+	}
+
+	public boolean has(String key) {
+		return get(key) != null;
+	}
+
+	public <T> T getAs(String key, Class<T> cls) {
+		return has(key) ? converter2().convertType(get(key), cls) : null;
 	}
 
 	public String eval(String text) {

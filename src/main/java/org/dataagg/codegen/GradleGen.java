@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.dataagg.codegen.util.CodeGenHelper;
-import org.dataagg.util.collection.WMap;
+import org.dataagg.util.collection.StrObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,32 +46,32 @@ public class GradleGen extends FtlCodeGen2 {
 		try {
 			if (data.has("subProjects")) {
 				//gen main project file
-				model.setv("type", "mainProject");
-				WMap subProjects = data.map("subProjects");
+				model.put("type", "mainProject");
+				StrObj subProjects = data.mapVal("subProjects");
 				fmHelper.process(genType + ".ftl", model);
 				formatGradle(workDir + "/build.gradle");
 
 				//gen sub project files
-				model.setv("type", "subProject");
+				model.put("type", "subProject");
 				for (String subProjectName : subProjects.keySet()) {
-					model.setv("subProjectName", subProjectName);
+					model.put("subProjectName", subProjectName);
 					fmHelper.process(genType + ".ftl", model);
 					formatGradle(workDir + "/" + subProjectName + "/build.gradle");
 				}
 
 				//gen project.md
 				codeGenHelper.init();
-				codeGenHelper.appendln("# " + data.getString("group") + ":" + data.getString("project") + ":" + data.getString("version"));
-				codeGenHelper.appendln("" + data.getString("description"));
+				codeGenHelper.appendln("# " + data.strVal("group") + ":" + data.strVal("project") + ":" + data.strVal("version"));
+				codeGenHelper.appendln("" + data.strVal("description"));
 				codeGenHelper.appendln("");
 				String graph = "";//data.getString("project")+ "["+data.getString("description")+"]\n";
 				for (String subProjectName : subProjects.keySet()) {
-					WMap subProject = subProjects.map(subProjectName);
+					StrObj subProject = subProjects.mapVal(subProjectName);
 					graph += subProjectName + "[" + subProjectName + "]\n";
-					codeGenHelper.appendln("## " + data.getString("group") + ":" + subProjectName + ":" + subProject.getString("version", data.getString("version")));
-					codeGenHelper.appendln("" + subProject.getString("description"));
+					codeGenHelper.appendln("## " + data.strVal("group") + ":" + subProjectName + ":" + subProject.strVal("version", data.strVal("version")));
+					codeGenHelper.appendln("" + subProject.strVal("description"));
 					codeGenHelper.appendln("");
-					for (String dep : subProject.strings("deps")) {
+					for (String dep : subProject.strArrayVal("deps")) {
 						dep = dep.trim();
 						if (dep.startsWith("compile project(")) {
 							dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
@@ -84,22 +84,22 @@ public class GradleGen extends FtlCodeGen2 {
 				codeGenHelper.appendln("# 项目依赖");
 				codeGenHelper.appendln("```graphLR");
 				codeGenHelper.appendln(graph + "```");
-				graph = "%% " + data.getString("project") + "\ngraph LR\n" + graph;
+				graph = "%% " + data.strVal("project") + "\ngraph LR\n" + graph;
 				//FileUtil.writeString(workDir + "/project.mmd", graph);
 				codeGenHelper.writeFile(workDir + "/project.md");
 
 				//gen settings.gradle
 				codeGenHelper.init();
 				if (profiles != null && profiles.length > 0) {
-					WMap depInfo = new WMap();
+					StrObj depInfo = new StrObj();
 					for (String subProjectName : subProjects.keySet()) {
-						WMap subProject = subProjects.map(subProjectName);
-						for (String dep : subProject.strings("deps")) {
+						StrObj subProject = subProjects.mapVal(subProjectName);
+						for (String dep : subProject.strArrayVal("deps")) {
 							dep = dep.trim();
 							if (dep.startsWith("compile project(")) {
 								dep = dep.substring("compile project(".length() + 2, dep.length() - 2);
 								graph += subProjectName + "-->" + dep + "[" + dep + "]\n";
-								depInfo.addv(subProjectName, dep);
+								depInfo.put(subProjectName, dep);
 							}
 						}
 					}
@@ -121,12 +121,12 @@ public class GradleGen extends FtlCodeGen2 {
 		}
 	}
 
-	public Set<String> addAllDeps(Set<String> lstDeps, WMap depInfo, String project) {
+	public Set<String> addAllDeps(Set<String> lstDeps, StrObj depInfo, String project) {
 		lstDeps.add(project);
 		List<String> deps = null;
 		Object o = depInfo.get(project);
 		if (o instanceof List) {
-			deps = depInfo.getList(project, String.class);
+			deps = depInfo.listVal(project, String.class);
 		} else if (o != null) {
 			deps = new ArrayList<>();
 			deps.add(o.toString());

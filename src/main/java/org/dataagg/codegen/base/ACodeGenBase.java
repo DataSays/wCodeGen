@@ -3,10 +3,8 @@ package org.dataagg.codegen.base;
 import java.util.function.Consumer;
 
 import org.dataagg.codegen.util.CodeGenUtils;
-import org.dataagg.util.collection.StrObj;
 import org.dataagg.util.lang.IStringHelper;
 import org.dataagg.util.text.MapTplHelper;
-import org.nutz.mapl.Mapl;
 
 public abstract class ACodeGenBase<M extends ADefBase<?>> implements IStringHelper {
 	protected M def;
