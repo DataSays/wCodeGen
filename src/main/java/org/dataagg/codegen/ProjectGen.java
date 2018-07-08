@@ -67,10 +67,10 @@ public class ProjectGen extends AYmlCodeGen {
 							LOG.error("can't find the component:" + componentName);
 							continue;
 						}
-						componetData.addAll(component);
+						componetData.mergeAll(component);
 					}
 					//merge Components into subProject.
-					componetData.addAll(subProject);
+					componetData.mergeAll(subProject);
 					GradleProject subProjectData = new GradleProject(componetData);
 
 					//gen gradle.build for sub project

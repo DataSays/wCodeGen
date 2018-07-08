@@ -1,5 +1,6 @@
 package org.dataagg.util.collection;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -86,5 +87,51 @@ public class StrObj extends LinkedHashMap<String, Object> implements ITypeHelper
 			out = StringUtil.replace(out, "${" + key + "}", get(key).toString());
 		}
 		return out;
+	}
+
+	public void mergeAll(StrObj data2) {
+		for (String key : data2.keySet()) {
+			merge(key, data2.get(key));
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void merge(String key, Object value) {
+		if (value == null) { return; }
+		Object currValue = get(key);
+		if (currValue == null) {
+			put(key, value);
+		} else if (currValue instanceof Map && value instanceof Map) {
+			StrObj obj = mapVal(key);
+			Map vObj = (Map) value;
+			for (Object k : vObj.keySet()) {
+				obj.merge(k.toString(), vObj.get(k));
+			}
+			put(key, obj);
+		} else if (currValue instanceof List) {
+			List<Object> lst = listVal(key, Object.class);
+			if (value instanceof List) {
+				lst.addAll((List) value);
+			} else if (value instanceof Object[]) {
+				for (Object o : (Object[]) value) {
+					lst.add(o);
+				}
+			} else {
+				lst.add(value);
+			}
+			put(key, lst);
+		} else if (value instanceof List) {
+			((List<Object>) value).add(currValue);
+			put(key, value);
+		} else if (value instanceof Object[]) {
+			List<Object> all = new ArrayList<>();
+			all.add(currValue);
+			for (Object o : (Object[]) value) {
+				all.add(o);
+			}
+			put(key, all);
+		} else {
+			put(key, value);
+		}
 	}
 }

@@ -158,9 +158,9 @@
 		<@genCommon cfg=subProject />
 		<@javaPlugin project=subProject />
 		configurations {
-			published
-			all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+			all*.exclude module: 'spring-boot-starter-logging'
 			all*.exclude group: 'log4j', module: 'log4j'
+			all*.exclude group: 'ch.qos.logback'
 		}
 		${subProject.ExtCodes!''}
 	</@f.writeFtl>
@@ -178,8 +178,7 @@
 		<@idea />
 		<@javaPlugin project=data />
 		configurations {
-			published
-			all*.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+			all*.exclude module: 'spring-boot-starter-logging'
 			all*.exclude group: 'log4j', module: 'log4j'
 			all*.exclude group: 'ch.qos.logback'
 		}

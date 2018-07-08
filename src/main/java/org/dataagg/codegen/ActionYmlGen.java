@@ -3,12 +3,9 @@ package org.dataagg.codegen;
 import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.dataagg.codegen.model.ModelFieldDef;
 import org.dataagg.codegen.util.JCoder;
@@ -50,7 +47,7 @@ public class ActionYmlGen {
 	}
 
 	public void genJsonRpc1(StrObj apiDefs) {
-		boolean mergeCode = false;
+		boolean mergeCode = true;
 		String target = apiDefs.mapVal("common").strVal("target") + "/src/main/java/";
 		String apiPackage = apiDefs.mapVal("api").strVal("apiPackage");
 		String modelPackage = apiDefs.mapVal("api").strVal("modelPackage", apiPackage + ".model");
@@ -61,7 +58,7 @@ public class ActionYmlGen {
 	}
 
 	public void genRestApi1(StrObj apiDefs) {
-		boolean mergeCode = false;
+		boolean mergeCode = true;
 		String target = apiDefs.mapVal("common").strVal("target") + "/src/main/java/";
 		String apiPackage = apiDefs.mapVal("api").strVal("apiPackage");
 		String modelPackage = apiDefs.mapVal("api").strVal("modelPackage", apiPackage + ".model");
@@ -87,22 +84,17 @@ public class ActionYmlGen {
 			jCoder.appendLines("");
 
 			String serviceName = apiDefs.strVal("name") + "Service";
-			jCoder.appendln2(JCoder.publicClsDef(serviceName, null));
+			jCoder.appendln2(JCoder.publicClsDef(serviceName, "ASignatureRestAPIBase"));
 			jCoder.beginIndent();
 
-			jCoder.appendln2("public String baseUrl;");
-			jCoder.appendln2("private final HttpHelper httpHelper;");
-
-			jCoder.appendln2("public %s(String baseUrl, String accessKey) {", serviceName);
-			jCoder.appendln2("	httpHelper = new HttpHelper(new SignatureAuthorization(accessKey));");
-			jCoder.appendln2("	this.baseUrl = baseUrl;");
+			jCoder.appendln2("public %s(String baseUrl, SignatureActionHelper signatureActionHelper) {", serviceName);
+			jCoder.appendln2("	super(baseUrl, signatureActionHelper);");
 			jCoder.appendln2("}");
 			jCoder.appendLines("");
 
-			jCoder.appendln2("public HttpHelper getHttpHelper() {");
-			jCoder.appendln2("	return httpHelper;");
-			jCoder.appendln2("}");
-			jCoder.appendLines("");
+			String block = "_Custom";
+			jCoder.startMergedCodes(block);
+			jCoder.endMergedCodes(block);
 
 			//gen actions
 			StrObj actions = apiDefs.mapVal("actions");
@@ -150,26 +142,26 @@ public class ActionYmlGen {
 						jCoder.appendln2("**/");
 						jCoder.appendln2("public %s %s(%s) throws Exception {", returnObj[0], actionName, actionParams);
 						jCoder.appendln2("	Call call = _%s(%s);", actionName, actionParams2);
-						jCoder.appendln2("	return httpHelper.send(call, new TypeReference<%s>() {});", returnObj[0]);
+						jCoder.appendln2("	return doAction(call, new TypeReference<%s>() {});", returnObj[0]);
 						jCoder.appendln2("}");
 
 						jCoder.appendln2("");
 						jCoder.appendln2("protected Call _%s(%s) {", actionName, actionParams);
 						if ("GET".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.get(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.get(baseUrl, \"%s\");", actionUrl);
 						} else if ("head".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.head(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.head(baseUrl, \"%s\");", actionUrl);
 						} else if ("delete".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.delete(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.delete(baseUrl, \"%s\");", actionUrl);
 						} else if ("POST".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.post(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.post(baseUrl, \"%s\");", actionUrl);
 						} else if ("put".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.put(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.put(baseUrl, \"%s\");", actionUrl);
 						} else if ("patch".equalsIgnoreCase(action.strVal("method"))) {
-							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.patch(baseUrl + \"%s\");", actionUrl);
+							jCoder.appendln2("	HttpRequestBuilder request = HttpRequestBuilder.patch(baseUrl, \"%s\");", actionUrl);
 						}
 						jCoder.appendln2(paramCodes);
-						jCoder.appendln2("	return httpHelper.doAction(request);");
+						jCoder.appendln2("	return doAction(request);");
 						jCoder.appendln2("}");
 					} catch (Exception e) {
 						LOG.error(e.getMessage(), e);
