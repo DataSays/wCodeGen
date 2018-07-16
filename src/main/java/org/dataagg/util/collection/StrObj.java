@@ -111,25 +111,21 @@ public class StrObj extends LinkedHashMap<String, Object> implements ITypeHelper
 		} else if (currValue instanceof List) {
 			List<Object> lst = listVal(key, Object.class);
 			if (value instanceof List) {
-				lst.addAll((List) value);
+				for (Object o : (List<Object>) value) {
+					if (!lst.contains(o)) {
+						lst.add(o);
+					}
+				}
 			} else if (value instanceof Object[]) {
 				for (Object o : (Object[]) value) {
-					lst.add(o);
+					if (!lst.contains(o)) {
+						lst.add(o);
+					}
 				}
 			} else {
 				lst.add(value);
 			}
 			put(key, lst);
-		} else if (value instanceof List) {
-			((List<Object>) value).add(currValue);
-			put(key, value);
-		} else if (value instanceof Object[]) {
-			List<Object> all = new ArrayList<>();
-			all.add(currValue);
-			for (Object o : (Object[]) value) {
-				all.add(o);
-			}
-			put(key, all);
 		} else {
 			put(key, value);
 		}
