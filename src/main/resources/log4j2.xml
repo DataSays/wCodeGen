@@ -2,7 +2,7 @@
 <configuration status="error">
 	<properties>
 		<property name="LOG_HOME">./logs</property>
-		<property name="FILE_NAME">server</property>
+		<property name="FILE_NAME">codegen</property>
 	</properties>
 	<appenders>
 		<Console name="Console" target="SYSTEM_OUT">

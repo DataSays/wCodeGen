@@ -72,7 +72,15 @@ public class ProjectGen extends AYmlCodeGen {
 					//merge Components into subProject.
 					componetData.mergeAll(subProject);
 					GradleProject subProjectData = new GradleProject(componetData);
-
+					// 特殊处理包含exclude的语法
+					int t = 0;
+					for (String dep : subProjectData.deps) {
+						dep = dep.trim();
+						if (StringUtil.indexOf(dep, "exclude")!=null) {
+							subProjectData.deps[t] = "'"+dep+"'";
+						}
+						t++;
+					}
 					//gen gradle.build for sub project
 					subProjectData.project = null;
 					if (subProjectData.version == null) {
@@ -133,10 +141,10 @@ public class ProjectGen extends AYmlCodeGen {
 						MapTplHelper mapTplHelper = new MapTplHelper();
 						mapTplHelper.initModel(model);
 						//{appCode}App.java
-						writeByFile(mapTplHelper, "./tpls/App.java", srcPath + "/main/java/" + appPkg + "/" + capitalize(subProjectName) + "App.java");
+//						writeByFile(mapTplHelper, "./tpls/App.java", srcPath + "/main/java/" + appPkg + "/" + capitalize(subProjectName) + "App.java");
 
 						//{appCode}AppTests.java
-						writeByFile(mapTplHelper, "./tpls/AppTests.java", srcPath + "/test/java/" + appPkg + "/" + capitalize(subProjectName) + "AppTests.java");
+//						writeByFile(mapTplHelper, "./tpls/AppTests.java", srcPath + "/test/java/" + appPkg + "/" + capitalize(subProjectName) + "AppTests.java");
 					}
 				}
 				gradleGen.endMap();
